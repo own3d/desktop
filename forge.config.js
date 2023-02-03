@@ -3,7 +3,7 @@ const { utils: { fromBuildIdentifier } } = require('@electron-forge/core');
 module.exports = {
   buildIdentifier: process.env.IS_BETA ? 'beta' : 'prod',
   packagerConfig: {
-    appBundleId: fromBuildIdentifier({ beta: 'tv.own3d.beta', prod: 'tv.own3d.app' }),
+    appBundleId: fromBuildIdentifier({ beta: 'tv.own3d.desktop-beta', prod: 'tv.own3d.desktop' }),
     icon: 'images/icon'
   },
   rebuildConfig: {},
@@ -23,7 +23,7 @@ module.exports = {
     {
       name: '@electron-forge/maker-squirrel',
       config: {
-        iconUrl: 'https://url/to/icon.ico',
+        iconUrl: 'https://assets.cdn.own3d.tv/production/desktop/images/icon.ico',
         setupIcon: 'images/icon.ico',
       },
     },
