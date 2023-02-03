@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en" class="h-full bg-transparent">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio,line-clamp"></script>
+    <link rel="stylesheet" href="https://cdn.bitinflow.com/fontawesome/6.2.0/css/all.min.css"
+          integrity="sha384-a/J8ePf6YlZ5aBQ6xmsPiCGV52z4VJMixEqX+4Mvoxi8flAWQA00ZFtk5qO5vyrP"
+          crossorigin="anonymous">
+    <title>OWN3D Desktop</title>
+    <style>
+        .title-bar {
+            -webkit-user-select: none;
+            -webkit-app-region: drag;
+        }
+
+        button {
+            -webkit-app-region: no-drag;
+        }
+    </style>
+</head>
+<body class="h-full">
+<div class="flex flex-col h-full">
+    <div class="flex flex-0 title-bar bg-zinc-900 text-white justify-between text-sm">
+        <div class="py-2 px-3">
+            OWN3D Desktop
+            <span class="indicator hidden"></span>
+        </div>
+        <div class="flex">
+            <button onclick="electron.minimizeWindow()"
+                    tabindex="-1"
+                    class="bg-zinc-900 hover:bg-zinc-700 text-white px-4">
+                <i class="fa-light fa-fw fa-dash"></i>
+            </button>
+            <button onclick="electron.maximizeWindow()"
+                    tabindex="-1"
+                    class="bg-zinc-900 hover:bg-zinc-700 text-white px-4">
+                <i class="fa-light fa-fw fa-square"></i>
+            </button>
+            <button onclick="electron.closeWindow()"
+                    tabindex="-1"
+                    class="bg-zinc-900 hover:bg-rose-700 text-white px-4">
+                <i class="fa-light fa-fw fa-xmark"></i>
+            </button>
+        </div>
+    </div>
+    <div class="flex-1 flex justify-center text-white" id="webview-loader">
+        <div class="self-center">
+            <i class="fa-light fa-fw fa-spinner-third fa-spin fa-4x text-zinc-500"></i>
+        </div>
+    </div>
+    <div class="flex-1 hidden" id="webview-container">
+        <webview src="https://www.own3d.pro/dashboard/"
+                 class="h-full w-full" nodeintegration></webview>
+    </div>
+    <script>
+        onload = () => {
+            const webview = document.querySelector('webview')
+            const indicator = document.querySelector('.indicator')
+
+            const loadstart = () => {
+                indicator.innerText = 'loading...'
+            }
+
+            const loadstop = () => {
+                indicator.innerText = ''
+            }
+
+            webview.addEventListener('did-start-loading', loadstart)
+            webview.addEventListener('did-stop-loading', loadstop)
+
+            // ensure /dashboard/ path is always on own3d.pro routes, otherwise redirect to it
+            webview.addEventListener('will-navigate', (e) => {
+                document.querySelector('#webview-loader').classList.remove('hidden')
+                document.querySelector('#webview-container').classList.add('hidden')
+
+                const url = new URL(e.url)
+                if (url.hostname === 'www.own3d.pro' && !url.pathname.startsWith('/dashboard/')) {
+                    webview.loadURL('https://www.own3d.pro/dashboard/')
+                    console.log('redirecting to dashboard', {
+                        url: url,
+                        pathname: url.pathname,
+                        startsWith: url.pathname.startsWith('/dashboard/')
+                    })
+                }
+            })
+
+            webview.addEventListener('dom-ready', () => {
+                webview.insertCSS('html,body{user-select: none;}')
+                document.querySelector('#webview-loader').classList.add('hidden')
+                document.querySelector('#webview-container').classList.remove('hidden')
+            })
+        }
+    </script>
+</div>
+</body>
+</html>
