@@ -4,6 +4,9 @@ const path = require('path');
 const Config = require('electron-config')
 const config = new Config();
 
+// auto updater
+require('update-electron-app')()
+
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
     app.quit();

@@ -3,10 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio,line-clamp"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdn.bitinflow.com/fontawesome/6.2.0/css/all.min.css"
           integrity="sha384-a/J8ePf6YlZ5aBQ6xmsPiCGV52z4VJMixEqX+4Mvoxi8flAWQA00ZFtk5qO5vyrP"
           crossorigin="anonymous">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'title-bar': '#14191D',
+                        'title-bar-hover': '#1C2329',
+                        'title-bar-close': '#ff3141',
+                    }
+                }
+            }
+        }
+    </script>
     <title>OWN3D Desktop</title>
     <style>
         .title-bar {
@@ -21,7 +34,7 @@
 </head>
 <body class="h-full">
 <div class="flex flex-col h-full">
-    <div class="flex flex-0 title-bar bg-zinc-900 text-white justify-between text-sm">
+    <div class="flex flex-0 title-bar bg-title-bar text-white justify-between text-sm">
         <div class="py-2 px-3">
             OWN3D Desktop
             <span class="indicator hidden"></span>
@@ -29,17 +42,17 @@
         <div class="flex">
             <button onclick="electron.minimizeWindow()"
                     tabindex="-1"
-                    class="bg-zinc-900 hover:bg-zinc-700 text-white px-4">
+                    class="bg-title-bar hover:bg-title-bar-hover text-zinc-400 px-4">
                 <i class="fa-light fa-fw fa-dash"></i>
             </button>
             <button onclick="electron.maximizeWindow()"
                     tabindex="-1"
-                    class="bg-zinc-900 hover:bg-zinc-700 text-white px-4">
+                    class="bg-title-bar hover:bg-title-bar-hover text-zinc-400 px-4">
                 <i class="fa-light fa-fw fa-square"></i>
             </button>
             <button onclick="electron.closeWindow()"
                     tabindex="-1"
-                    class="bg-zinc-900 hover:bg-rose-700 text-white px-4">
+                    class="bg-title-bar hover:bg-title-bar-close hover:text-zinc-200 text-zinc-400 px-4">
                 <i class="fa-light fa-fw fa-xmark"></i>
             </button>
         </div>

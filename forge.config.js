@@ -7,6 +7,18 @@ module.exports = {
     icon: 'images/icon'
   },
   rebuildConfig: {},
+  publishers: [
+    {
+      name: '@electron-forge/publisher-github',
+      config: {
+        repository: {
+          owner: 'own3d',
+          name: 'desktop'
+        },
+        prerelease: true
+      }
+    }
+  ],
   makers: [
     {
       name: '@electron-forge/maker-squirrel',
