@@ -17,7 +17,7 @@ The OWN3D Desktop app is a desktop client for OWN3D. It is built with Electron.
 
 To install the OWN3D Desktop app, simply download the latest release from our [releases page](https://github.com/own3d/desktop/releases/latest).
 
-Once downloaded, double-click the OWN3D.Desktop-X.X.X.Setup.exe` file to begin the installation process.
+Once downloaded, double-click the `OWN3D.Desktop-X.X.X.Setup.exe` file to begin the installation process.
 
 ## Usage
 
