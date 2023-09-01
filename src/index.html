@@ -63,7 +63,7 @@
         </div>
     </div>
     <div class="flex-1 hidden" id="webview-container">
-        <webview src="https://www.own3d.pro/dashboard/"
+        <webview src="https://develop--pro-frontend.netlify.app/dashboard/"
                  class="h-full w-full" nodeintegration></webview>
     </div>
     <script>
@@ -89,7 +89,7 @@
 
                 const url = new URL(e.url)
                 if (url.hostname === 'www.own3d.pro' && !url.pathname.startsWith('/dashboard/')) {
-                    webview.loadURL('https://www.own3d.pro/dashboard/')
+                    webview.loadURL('https://develop--pro-frontend.netlify.app/dashboard/')
                     console.log('redirecting to dashboard', {
                         url: url,
                         pathname: url.pathname,
