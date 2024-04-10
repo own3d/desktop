@@ -1,4 +1,4 @@
-import { app, BrowserWindow } from 'electron';
+import {app, BrowserWindow, ipcMain} from 'electron';
 import path from 'path';
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
@@ -9,9 +9,19 @@ if (require('electron-squirrel-startup')) {
 const createWindow = () => {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
-    width: 800,
-    height: 600,
+    title: 'OWN3D Pro Desktop',
+    frame: false,
+    //width: 1280 + 400,
+    width: 1280,
+    height: 720,
+    minWidth: 950,
+    minHeight: 500,
+    maximizable: true,
+    minimizable: true,
+    backgroundColor: '#0d1114',
+    icon: path.join(__dirname, '/../images/icon.png'),
     webPreferences: {
+      webviewTag: true,
       preload: path.join(__dirname, 'preload.js'),
     },
   });
@@ -24,7 +34,30 @@ const createWindow = () => {
   }
 
   // Open the DevTools.
-  mainWindow.webContents.openDevTools();
+  // mainWindow.webContents.openDevTools();
+
+  ipcMain.on('maximize-window', function (event) {
+    console.log('maximize-window')
+    mainWindow.isMaximized() ? mainWindow.unmaximize() : mainWindow.maximize()
+  })
+
+  ipcMain.on('minimize-window', function (event) {
+    console.log('minimize-window')
+    mainWindow.minimize()
+  })
+
+  ipcMain.on('close-window', function (event) {
+    console.log('close-window')
+    mainWindow.close()
+  })
+
+  ipcMain.on('authenticate', function (event, ...args) {
+    console.log('authenticate', args)
+  })
+
+  ipcMain.handle('preload-path', function () {
+    return path.join(__dirname, 'webview-preload.js');
+  })
 };
 
 // This method will be called when Electron has finished
