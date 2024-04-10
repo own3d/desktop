@@ -11,6 +11,10 @@
     "publish": "electron-forge publish",
     "lint": "echo \"No linting configured\""
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/own3d/desktop.git"
+  },
   "keywords": [],
   "author": {
     "name": "StreamTV Media GmbH",
