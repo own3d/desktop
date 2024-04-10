@@ -15,12 +15,12 @@
                         'title-bar': '#14191D',
                         'title-bar-hover': '#1C2329',
                         'title-bar-close': '#ff3141',
-                    }
-                }
-            }
+                    },
+                },
+            },
         }
     </script>
-    <title>OWN3D Desktop</title>
+    <title>OWN3D Pro Desktop</title>
     <style>
         .title-bar {
             -webkit-user-select: none;
@@ -36,7 +36,7 @@
 <div class="flex flex-col h-full">
     <div class="flex flex-0 title-bar bg-title-bar text-white justify-between text-sm">
         <div class="py-2 px-3">
-            OWN3D Desktop
+            OWN3D Pro Desktop
             <span class="indicator hidden"></span>
         </div>
         <div class="flex">
@@ -63,8 +63,10 @@
         </div>
     </div>
     <div class="flex-1 hidden" id="webview-container">
-        <webview src="https://develop--pro-frontend.netlify.app/dashboard/"
-                 class="h-full w-full" nodeintegration></webview>
+        <webview src="https://www.own3d.pro/dashboard/"
+                 preload="./webview-preload.js"
+                 class="h-full w-full"
+                 allowpopups></webview>
     </div>
     <script>
         onload = () => {
@@ -79,6 +81,11 @@
                 indicator.innerText = ''
             }
 
+            webview.addEventListener('ipc-message', event => {
+                // prints "ping"
+                console.log(event.channel)
+            })
+
             webview.addEventListener('did-start-loading', loadstart)
             webview.addEventListener('did-stop-loading', loadstop)
 
@@ -88,14 +95,17 @@
                 document.querySelector('#webview-container').classList.add('hidden')
 
                 const url = new URL(e.url)
-                if (url.hostname === 'www.own3d.pro' && !url.pathname.startsWith('/dashboard/')) {
-                    webview.loadURL('https://develop--pro-frontend.netlify.app/dashboard/')
+                if (['https://www.own3d.pro'].includes(url.hostname)
+                    && !url.pathname.startsWith('/dashboard/'))
+                {
+                    webview.loadURL(`https://${url.hostname}/dashboard/`)
                     console.log('redirecting to dashboard', {
                         url: url,
                         pathname: url.pathname,
-                        startsWith: url.pathname.startsWith('/dashboard/')
+                        startsWith: url.pathname.startsWith('/dashboard/'),
                     })
                 }
+                console.log('will-navigate', {url: url})
             })
 
             webview.addEventListener('dom-ready', () => {

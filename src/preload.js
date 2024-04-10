@@ -13,4 +13,5 @@ contextBridge.exposeInMainWorld('electron', {
     closeWindow: () => ipcRenderer.send('close-window'),
     minimizeWindow: () => ipcRenderer.send('minimize-window'),
     maximizeWindow: () => ipcRenderer.send('maximize-window'),
+    authenticate: (accessToken) => ipcRenderer.send('authenticate', accessToken),
 })

@@ -1,10 +1,10 @@
-# OWN3D Desktop
+# OWN3D Pro Desktop
 
 ![](preview.png)
 
 ## Introduction
 
-The OWN3D Desktop app is a desktop client for OWN3D. It is built with Electron.
+The OWN3D Pro Desktop app is a desktop client for OWN3D. It is built with Electron.
 
 ## Features
 
@@ -15,20 +15,20 @@ The OWN3D Desktop app is a desktop client for OWN3D. It is built with Electron.
 
 ## Installation
 
-To install the OWN3D Desktop app, simply download the latest release from our [releases page](https://github.com/own3d/desktop/releases/latest).
+To install the OWN3D Pro Desktop app, simply download the latest release from our [releases page](https://github.com/own3d/desktop/releases/latest).
 
 Once downloaded, double-click the `OWN3D.Desktop-X.X.X.Setup.exe` file to begin the installation process.
 
 ## Usage
 
-Once installed, launch the OWN3D Desktop app and log in using your Twitch or OWN3D credentials.
+Once installed, launch the OWN3D Pro Desktop app and log in using your Twitch or OWN3D credentials.
 
 From here you can access all of your OWN3D account features and essential tools to assist your streaming career.
 
 ## Known Issues
 
-- At this time, the OWN3D Desktop app cannot be toggled off from auto-starting when Windows starts up.
+- At this time, the OWN3D Pro Desktop app cannot be toggled off from auto-starting when Windows starts up.
 
 ## Support
 
-If you have any questions or issues with the OWN3D Desktop app, please [reach out to our support team](https://www.own3d.tv/contact).
+If you have any questions or issues with the OWN3D Pro Desktop app, please [reach out to our support team](https://www.own3d.tv/contact).
