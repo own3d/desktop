@@ -63,7 +63,7 @@ const createWindow = () => {
         maximizable: true,
         minimizable: true,
         backgroundColor: '#0d1114',
-        icon: path.join(__dirname, '/../images/icon.png'),
+        icon: path.join(__dirname, '/../icons/icon.png'),
         webPreferences: {
             webviewTag: true,
             preload: path.join(__dirname, 'preload.js'),
