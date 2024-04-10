@@ -4,7 +4,7 @@ module.exports = {
   buildIdentifier: process.env.IS_BETA ? 'beta' : 'prod',
   packagerConfig: {
     appBundleId: fromBuildIdentifier({ beta: 'tv.own3d.desktop-beta', prod: 'tv.own3d.desktop' }),
-    icon: 'images/icon'
+    icon: 'icons/icon'
   },
   rebuildConfig: {},
   publishers: [
@@ -24,7 +24,7 @@ module.exports = {
       name: '@electron-forge/maker-squirrel',
       config: {
         iconUrl: 'https://assets.cdn.own3d.tv/production/desktop/images/icon.ico',
-        setupIcon: 'images/icon.ico',
+        setupIcon: 'icons/win/icon.ico',
       },
     },
     {
@@ -35,7 +35,7 @@ module.exports = {
       name: '@electron-forge/maker-deb',
       config: {
         options: {
-          icon: 'images/icon.png'
+          icon: 'icons/png/512x512.png'
         }
       }
     },
