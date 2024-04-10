@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const webviewLoader: HTMLElement = document.querySelector('#webview-loader')
     const webviewContainer: HTMLElement = document.querySelector('#webview-container')
     // @ts-ignore
-    const preload = `file://${await electron.preloadPath()}`;
+    const preload = `file://${await window.electron.preloadPath()}`;
     // <webview src="https://www.own3d.pro/dashboard/"
     //                  class="h-full w-full"
     //                  allowpopups></webview>
