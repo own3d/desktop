@@ -1,20 +1,20 @@
 {
   "runtimeTarget": {
-    "name": ".NETCoreApp,Version=v3.1",
+    "name": ".NETCoreApp,Version=v8.0",
     "signature": ""
   },
   "compilationOptions": {},
   "targets": {
-    ".NETCoreApp,Version=v3.1": {
-      "Input/1.0.0": {
+    ".NETCoreApp,Version=v8.0": {
+      "InputBridge/1.0.0": {
         "runtime": {
-          "Input.dll": {}
+          "InputBridge.dll": {}
         }
       }
     }
   },
   "libraries": {
-    "Input/1.0.0": {
+    "InputBridge/1.0.0": {
       "type": "project",
       "serviceable": false,
       "sha512": ""
