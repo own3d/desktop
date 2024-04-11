@@ -783,6 +783,11 @@
   dependencies:
     electron-config "*"
 
+"@types/electron-squirrel-startup@^1.0.2":
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/@types/electron-squirrel-startup/-/electron-squirrel-startup-1.0.2.tgz#80c4b4c63dc5be3aa7d4ffe64471ba45aa73ae69"
+  integrity sha512-AzxnvBzNh8K/0SmxMmZtpJf1/IWoGXLP+pQDuUaVkPyotI8ryvAtBSqgxR/qOSvxWHYWrxkeNsJ+Ca5xOuUxJQ==
+
 "@types/estree@1.0.5":
   version "1.0.5"
   resolved "https://registry.yarnpkg.com/@types/estree/-/estree-1.0.5.tgz#a6ce3e556e00fd9895dd872dd172ad0d4bd687f4"

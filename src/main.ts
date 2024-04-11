@@ -1,19 +1,25 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import {app, BrowserWindow, ipcMain} from 'electron';
-import path from 'path';
-import {Button, useButton} from "./composables/useButton";
-
-import {io} from 'socket.io-client';
-import {updateElectronApp} from "update-electron-app";
 // @ts-ignore
 import Config from 'electron-config'
 import AutoLaunch from 'auto-launch'
+import electronSquirrelStartup from 'electron-squirrel-startup'
+import { app, BrowserWindow, ipcMain } from 'electron'
+import path from 'path'
+import { Button, useButton } from './composables/useButton'
+
+import { io } from 'socket.io-client'
+import { updateElectronApp } from 'update-electron-app'
 
 updateElectronApp()
 
 const gotTheLock = app.requestSingleInstanceLock()
 let mainWindow: BrowserWindow | null;
 const config = new Config()
+
+// Handle creating/removing shortcuts on Windows when installing/uninstalling.
+if (electronSquirrelStartup) {
+    app.quit()
+}
 
 if (!gotTheLock) {
     app.quit()
