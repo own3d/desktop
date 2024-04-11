@@ -7,7 +7,6 @@ import {io} from 'socket.io-client';
 import {updateElectronApp} from "update-electron-app";
 // @ts-ignore
 import Config from 'electron-config'
-import AutoLaunch from 'auto-launch'
 
 updateElectronApp()
 
@@ -33,15 +32,6 @@ if (!gotTheLock) {
     // initialization and is ready to create browser windows.
     // Some APIs can only be used after this event occurs.
     app.whenReady().then(() => {
-        const autoLaunch = new AutoLaunch({
-            name: 'OWN3D',
-            path: app.getPath('exe'),
-        })
-
-        autoLaunch.isEnabled().then((isEnabled) => {
-            if (!isEnabled) autoLaunch.enable().catch(console.error)
-        })
-
         createWindow()
     })
 }
@@ -98,6 +88,9 @@ const createWindow = () => {
     ipcMain.on('close-window', function (event) {
         console.log('close-window')
         mainWindow.close()
+        if (process.platform !== 'darwin') {
+            app.quit();
+        }
     })
 
     ipcMain.handle('preload-path', function () {
