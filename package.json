@@ -25,6 +25,7 @@
     "@types/electron-config": "^3.2.2",
     "@typescript-eslint/eslint-plugin": "^5.0.0",
     "@typescript-eslint/parser": "^5.0.0",
+    "@vitejs/plugin-vue": "^5.0.4",
     "electron": "29.3.0",
     "eslint": "^8.0.1",
     "eslint-plugin-import": "^2.25.0",
@@ -44,9 +45,12 @@
   "license": "MIT",
   "dependencies": {
     "@types/electron-squirrel-startup": "^1.0.2",
+    "axios": "^1.6.8",
+    "defu": "^6.1.4",
     "electron-config": "^2.0.0",
     "electron-squirrel-startup": "^1.0.0",
     "socket.io-client": "^4.7.5",
-    "update-electron-app": "^3.0.0"
+    "update-electron-app": "^3.0.0",
+    "vue": "^3.4.21"
   }
 }
