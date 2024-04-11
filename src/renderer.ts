@@ -48,6 +48,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     webviewContainer.appendChild(webview);
     const indicator: HTMLElement = document.querySelector('.indicator')
 
+    // handle control+shift+i
+    document.addEventListener('keyup', (e) => {
+        if (e.key === 'O' && e.ctrlKey && e.shiftKey) {
+            webview.openDevTools()
+        }
+    })
+
+    //@ts-ignore
+    window.dev = () => webview.openDevTools()
+
     const loadstart = () => {
         indicator.innerText = 'loading...'
     }
