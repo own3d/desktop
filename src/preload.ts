@@ -12,7 +12,8 @@ contextBridge.exposeInMainWorld('versions', {
 
 contextBridge.exposeInMainWorld('electron', {
     preload: () => ipcRenderer.invoke('preload'),
-    getDashboardUrl: () => ipcRenderer.invoke('get-dashboard-url'),
+    needsDevTools: () => ipcRenderer.invoke('needs-devtools'),
+    getHostname: () => ipcRenderer.invoke('hostname'),
     //
     closeWindow: () => ipcRenderer.send('close-window'),
     minimizeWindow: () => ipcRenderer.send('minimize-window'),

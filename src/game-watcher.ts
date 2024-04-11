@@ -51,7 +51,8 @@ export class GameWatcher {
      * Check if any of the verified games are running
      */
     handle(verifiedGames: Array<VerifiedGame>, callback: (verifiedGames: Array<VerifiedGame>) => void) {
-        exec('tasklist', (err: ExecFileException | null, stdout: string) => {
+        const command = process.platform === 'win32' ? 'tasklist' : 'ps aux'
+        exec(command, (err: ExecFileException | null, stdout: string) => {
             if (err) {
                 console.error(err)
                 return

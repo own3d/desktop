@@ -2,19 +2,26 @@
 // @ts-ignore
 import Config from 'electron-config'
 import electronSquirrelStartup from 'electron-squirrel-startup'
-import { app, BrowserWindow, globalShortcut, ipcMain, screen, session, shell } from 'electron'
+import {app, BrowserWindow, globalShortcut, ipcMain, screen, session, shell} from 'electron'
 import path from 'path'
-import { Button, useButton } from './composables/useButton'
+import {Button, useButton} from './composables/useButton'
 
-import { io } from 'socket.io-client'
-import { updateElectronApp } from 'update-electron-app'
-import { Authorization, Settings, VerifiedGame } from './schema'
-import { GameWatcher } from './game-watcher'
-import { emit } from './helpers'
-import BrowserWindowConstructorOptions = Electron.BrowserWindowConstructorOptions
-import { SettingsRepository } from './settings'
-import IpcMainInvokeEvent = Electron.IpcMainInvokeEvent
-import { AppLaunchWatcher } from './watch'
+import {io} from 'socket.io-client'
+import {updateElectronApp} from 'update-electron-app'
+import {Authorization, Settings, VerifiedGame} from './schema'
+import {GameWatcher} from './game-watcher'
+import {emit} from './helpers'
+import {SettingsRepository} from './settings'
+import {AppLaunchWatcher} from './watch'
+import BrowserWindowConstructorOptions = Electron.BrowserWindowConstructorOptions;
+import IpcMainInvokeEvent = Electron.IpcMainInvokeEvent;
+
+const argv: {
+    _: string[]
+    devtools?: boolean
+    localhost?: boolean
+    hostname?: string
+} = require('boring')({});
 
 updateElectronApp()
 
@@ -42,8 +49,10 @@ if (!gotTheLock) {
     ipcMain.handle('version', async () => app.getVersion())
     ipcMain.handle('settings', async () => settingsRepository.getSettings())
     ipcMain.handle('quit', async () => app.quit())
-    // ipcMain.handle('get-dashboard-url', async () => 'https://www.own3d.pro/dashboard/')
-    ipcMain.handle('get-dashboard-url', async () => 'http://localhost:3000/dashboard/')
+    ipcMain.handle('needs-devtools', async () => !!argv.devtools)
+    ipcMain.handle('hostname', async () => {
+        return !!argv.localhost ? 'http://localhost:3000' : (argv.hostname || 'https://www.own3d.pro')
+    })
     ipcMain.on('maximize-window', function (event) {
         console.log('maximize-window')
         mainWindow.isMaximized() ? mainWindow.unmaximize() : mainWindow.maximize()
@@ -145,7 +154,7 @@ if (!gotTheLock) {
                 appLaunchWatcher.watch(() => createWindowIfNotExists())
 
                 console.log('Settings initialized launching apps...', settings)
-                createBrowserSource(settings)
+                // createBrowserSource(settings)
                 createWindowIfNotExists()
             })
     })
@@ -226,7 +235,9 @@ if (!gotTheLock) {
         }
 
         // Open the DevTools.
-        // mainWindow.webContents.openDevTools();
+        if (process.argv.includes('--devtools')) {
+            mainWindow.webContents.openDevTools()
+        }
 
         mainWindow.on('page-title-updated', (evt) => {
             evt.preventDefault()
@@ -298,7 +309,6 @@ if (!gotTheLock) {
 
         // disable interaction with the window
         browserSource.setIgnoreMouseEvents(locked)
-
 
         // and load the index.html of the app.
         if (FULLSCREEN_WINDOW_VITE_DEV_SERVER_URL) {

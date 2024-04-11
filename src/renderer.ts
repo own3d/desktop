@@ -2,19 +2,13 @@ import './index.css'
 
 console.log('👋 This message is being logged by "renderer.ts", included via Vite')
 
-// if the user is outside the kiosk domain, redirect to the dashboard
-// external domains are still allowed (e.g. for the login page)
-const kioskDomains = [
-    'https://www.own3d.pro',
-    'http://localhost:3000',
-]
-
 document.addEventListener('DOMContentLoaded', async () => {
+    // @ts-ignore
+    const hostname = await window.electron.getHostname()
     const webviewLoader: HTMLElement = document.querySelector('#webview-loader')
     const webviewContainer: HTMLElement = document.querySelector('#webview-container')
     const webview: Electron.WebviewTag = document.createElement('webview')
-    // @ts-ignore
-    webview.setAttribute('src', await window.electron.getDashboardUrl())
+    webview.setAttribute('src', `${hostname}/dashboard/`)
     webview.setAttribute('class', 'h-full w-full')
     webview.setAttribute('allowpopups', '')
     // @ts-ignore
@@ -28,6 +22,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             webview.openDevTools()
         }
     })
+
+    // @ts-ignore
+    if (await window.electron.needsDevTools()) {
+        webview.openDevTools()
+    }
 
     //@ts-ignore
     window.dev = () => webview.openDevTools()
@@ -54,7 +53,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         webviewContainer.classList.add('hidden')
 
         const url = new URL(e.url)
-        if (kioskDomains.includes(url.hostname)
+        if (url.hostname === hostname
             && !url.pathname.startsWith('/dashboard/')) {
             webview.loadURL(`https://${url.hostname}/dashboard/`)
             console.log('redirecting to dashboard', {

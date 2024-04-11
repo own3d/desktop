@@ -14,7 +14,8 @@ export class AppLaunchWatcher {
     }
 
     checkObs(callback: () => void) {
-        exec('tasklist', (err: ExecException | null, stdout: string) => {
+        const command = process.platform === 'win32' ? 'tasklist' : 'ps aux'
+        exec(command, (err: ExecException | null, stdout: string) => {
             if (err) {
                 console.error(err)
                 return
