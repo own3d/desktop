@@ -74,41 +74,39 @@ const createWindow = () => {
     mainWindow.on('close', () => {
         config.set('winBounds', mainWindow.getBounds())
     })
-
-    ipcMain.on('maximize-window', function (event) {
-        console.log('maximize-window')
-        mainWindow.isMaximized() ? mainWindow.unmaximize() : mainWindow.maximize()
-    })
-
-    ipcMain.on('minimize-window', function (event) {
-        console.log('minimize-window')
-        mainWindow.minimize()
-    })
-
-    ipcMain.on('close-window', function (event) {
-        console.log('close-window')
-        mainWindow.close()
-        if (process.platform !== 'darwin') {
-            app.quit();
-        }
-    })
-
-    ipcMain.handle('preload-path', function () {
-        return path.join(__dirname, 'webview-preload.js');
-    })
-
-    ipcMain.on('authenticate', function (event, ...args) {
-        const isFreshlyAuthenticated = !authorization
-        authorization = args[0] as Authorization
-        if (isFreshlyAuthenticated) {
-            try {
-                handleAuthenticated(authorization)
-            } catch (e) {
-                console.log('Error while authenticating:', e)
-            }
-        }
-    })
 };
+
+ipcMain.on('maximize-window', function (event) {
+    console.log('maximize-window')
+    mainWindow.isMaximized() ? mainWindow.unmaximize() : mainWindow.maximize()
+})
+
+ipcMain.on('minimize-window', function (event) {
+    console.log('minimize-window')
+    mainWindow.minimize()
+})
+
+ipcMain.on('close-window', function (event) {
+    console.log('close-window')
+    mainWindow.close()
+    app.quit();
+})
+
+ipcMain.handle('preload-path', function () {
+    return path.join(__dirname, 'webview-preload.js');
+})
+
+ipcMain.on('authenticate', function (event, ...args) {
+    const isFreshlyAuthenticated = !authorization
+    authorization = args[0] as Authorization
+    if (isFreshlyAuthenticated) {
+        try {
+            handleAuthenticated(authorization)
+        } catch (e) {
+            console.log('Error while authenticating:', e)
+        }
+    }
+})
 
 // Quit when all windows are closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits
