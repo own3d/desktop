@@ -45,7 +45,6 @@
   "license": "MIT",
   "dependencies": {
     "@types/electron-squirrel-startup": "^1.0.2",
-    "auto-launch": "^5.0.6",
     "electron-config": "^2.0.0",
     "electron-squirrel-startup": "^1.0.0",
     "socket.io-client": "^4.7.5",

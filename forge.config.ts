@@ -23,9 +23,6 @@ const config: ForgeConfig = {
             setupIcon: 'images/icon.ico',
         }),
         new MakerZIP({}, ['darwin']),
-        new MakerDMG({
-            icon: 'images/icon.icns',
-        }),
         new MakerRpm({}),
         new MakerDeb({
             options: {

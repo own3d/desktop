@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 // @ts-ignore
 import Config from 'electron-config'
-import AutoLaunch from 'auto-launch'
 import electronSquirrelStartup from 'electron-squirrel-startup'
 import { app, BrowserWindow, ipcMain } from 'electron'
 import path from 'path'
@@ -39,15 +38,6 @@ if (!gotTheLock) {
     // initialization and is ready to create browser windows.
     // Some APIs can only be used after this event occurs.
     app.whenReady().then(() => {
-        const autoLaunch = new AutoLaunch({
-            name: 'OWN3D',
-            path: app.getPath('exe'),
-        })
-
-        autoLaunch.isEnabled().then((isEnabled) => {
-            if (!isEnabled) autoLaunch.enable().catch(console.error)
-        })
-
         createWindow()
     })
 }
@@ -90,38 +80,39 @@ const createWindow = () => {
     mainWindow.on('close', () => {
         config.set('winBounds', mainWindow.getBounds())
     })
-
-    ipcMain.on('maximize-window', function (event) {
-        console.log('maximize-window')
-        mainWindow.isMaximized() ? mainWindow.unmaximize() : mainWindow.maximize()
-    })
-
-    ipcMain.on('minimize-window', function (event) {
-        console.log('minimize-window')
-        mainWindow.minimize()
-    })
-
-    ipcMain.on('close-window', function (event) {
-        console.log('close-window')
-        mainWindow.close()
-    })
-
-    ipcMain.handle('preload-path', function () {
-        return path.join(__dirname, 'webview-preload.js');
-    })
-
-    ipcMain.on('authenticate', function (event, ...args) {
-        const isFreshlyAuthenticated = !authorization
-        authorization = args[0] as Authorization
-        if (isFreshlyAuthenticated) {
-            try {
-                handleAuthenticated(authorization)
-            } catch (e) {
-                console.log('Error while authenticating:', e)
-            }
-        }
-    })
 };
+
+ipcMain.on('maximize-window', function (event) {
+    console.log('maximize-window')
+    mainWindow.isMaximized() ? mainWindow.unmaximize() : mainWindow.maximize()
+})
+
+ipcMain.on('minimize-window', function (event) {
+    console.log('minimize-window')
+    mainWindow.minimize()
+})
+
+ipcMain.on('close-window', function (event) {
+    console.log('close-window')
+    mainWindow.close()
+    app.quit();
+})
+
+ipcMain.handle('preload-path', function () {
+    return path.join(__dirname, 'webview-preload.js');
+})
+
+ipcMain.on('authenticate', function (event, ...args) {
+    const isFreshlyAuthenticated = !authorization
+    authorization = args[0] as Authorization
+    if (isFreshlyAuthenticated) {
+        try {
+            handleAuthenticated(authorization)
+        } catch (e) {
+            console.log('Error while authenticating:', e)
+        }
+    }
+})
 
 // Quit when all windows are closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits
