@@ -36,7 +36,7 @@ export class SettingsRepository {
         this.path = `${this.directory}/desktop-overlay.json`
     }
 
-    async restore() {
+    async restore(): Promise<Settings> {
         // load settings from path
         // using node's fs module if file does not exist, create it with defaults
         // if file exists, load it into this.settings
@@ -65,7 +65,7 @@ export class SettingsRepository {
         return this.settings
     }
 
-    async save() {
+    async save(): Promise<void> {
         // call all listeners with the current settings
         this.listeners.forEach(
             (listener: (settings: Settings) => void) => listener(this.settings),
@@ -88,7 +88,7 @@ export class SettingsRepository {
         return process.env.HOME + '/.local/share' + path
     }
 
-    getSettings() {
+    getSettings(): Settings {
         return this.settings
     }
 
@@ -105,7 +105,7 @@ export class SettingsRepository {
         this.settings.room = room
     }
 
-    commitSettings(settings: Settings) {
+    async commitSettings(settings: Settings): Promise<void> {
         this.settings = defu(settings, this.settings)
         // defu will not remove a key if it is set to null, so we need to do that manually
         const keys = Object.keys(settings)
@@ -113,10 +113,10 @@ export class SettingsRepository {
             // @ts-ignore
             if (settings[key] === null && this.settings[key]) this.settings[key] = null
         }
-        this.save()
+        await this.save()
     }
 
-    async logout() {
+    async logout(): Promise<void> {
         this.settings.credentials = null
         this.settings.room = null
         await this.save()
