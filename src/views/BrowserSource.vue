@@ -39,10 +39,9 @@ export default {
     },
   },
   mounted() {
-    console.log('Sending Room to Source', this.room)
     // get initial games
-    window.electron.onSettingsChanged(this.settingsChanged)
-    window.electron.getSettings()
+    electron.onSettingsChanged(this.settingsChanged)
+    electron.getSettings()
         .then(this.settingsChanged)
         .catch(err => console.error(err))
 
@@ -67,8 +66,8 @@ export default {
     settingsChanged(settings) {
       console.log('Sending Room to Source', this.room)
       this.settings = settings;
-      if (settings.room !== this.room) {
-        console.log("room changed", settings.room)
+      if (settings.room && settings.room !== this.room) {
+        console.log("Room changed", settings.room)
         this.room = settings.room;
       }
       this.emitVolume();

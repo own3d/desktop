@@ -2,26 +2,26 @@
 // @ts-ignore
 import Config from 'electron-config'
 import electronSquirrelStartup from 'electron-squirrel-startup'
-import {app, BrowserWindow, globalShortcut, ipcMain, screen, session, shell} from 'electron'
+import { app, BrowserWindow, globalShortcut, ipcMain, screen, session, shell } from 'electron'
 import path from 'path'
-import {Button, useButton} from './composables/useButton'
+import { Button, useButton } from './composables/useButton'
 
-import {io} from 'socket.io-client'
-import {updateElectronApp} from 'update-electron-app'
-import {Authorization, Settings, VerifiedGame} from './schema'
-import {GameWatcher} from './game-watcher'
-import {emit} from './helpers'
-import {SettingsRepository} from './settings'
-import {AppLaunchWatcher} from './watch'
-import BrowserWindowConstructorOptions = Electron.BrowserWindowConstructorOptions;
-import IpcMainInvokeEvent = Electron.IpcMainInvokeEvent;
+import { io } from 'socket.io-client'
+import { updateElectronApp } from 'update-electron-app'
+import { Authorization, Settings, VerifiedGame } from './schema'
+import { GameWatcher } from './game-watcher'
+import { emit } from './helpers'
+import { SettingsRepository } from './settings'
+import { AppLaunchWatcher } from './watch'
+import BrowserWindowConstructorOptions = Electron.BrowserWindowConstructorOptions
+import IpcMainInvokeEvent = Electron.IpcMainInvokeEvent
 
 const argv: {
     _: string[]
     devtools?: boolean
     localhost?: boolean
     hostname?: string
-} = require('boring')({});
+} = require('boring')({})
 
 updateElectronApp()
 
@@ -99,7 +99,7 @@ if (!gotTheLock) {
         })
     })
     ipcMain.handle('commit-settings',
-        async (_event: IpcMainInvokeEvent, ...args: any[]) => settingsRepository.commitSettings(args[0])
+        async (_event: IpcMainInvokeEvent, ...args: any[]) => settingsRepository.commitSettings(args[0]),
     )
     ipcMain.handle('get-displays', async () => screen.getAllDisplays())
     ipcMain.handle('request-display-update', async () => {
@@ -154,7 +154,7 @@ if (!gotTheLock) {
                 appLaunchWatcher.watch(() => createWindowIfNotExists())
 
                 console.log('Settings initialized launching apps...', settings)
-                // createBrowserSource(settings)
+                createBrowserSource(settings)
                 createWindowIfNotExists()
             })
     })
@@ -182,7 +182,13 @@ if (!gotTheLock) {
     let authorization: Authorization
 
     const handleAuthenticated = (authorization: Authorization) => {
-        console.log(authorization.data)
+        console.log('Authenticated:', {
+            name: authorization.data.name,
+            id: authorization.data.id,
+        })
+        settingsRepository.commitSettings({
+            room: `90a951d1-ea50-4fda-8c4d-275b81f7d219.own3d.${authorization.data.id}`,
+        })
         console.log(`Starting socket client for ${authorization.data.name}...`)
 
         // Connect to the socket
