@@ -1,7 +1,6 @@
 import type {ForgeConfig} from '@electron-forge/shared-types';
 import {MakerSquirrel} from '@electron-forge/maker-squirrel';
 import {MakerZIP} from '@electron-forge/maker-zip';
-import {MakerDMG} from '@electron-forge/maker-dmg';
 import {MakerDeb} from '@electron-forge/maker-deb';
 import {MakerRpm} from '@electron-forge/maker-rpm';
 import {VitePlugin} from '@electron-forge/plugin-vite';
@@ -15,6 +14,9 @@ const config: ForgeConfig = {
         icon: 'images/icon',
         asar: true,
         executableName: 'own3d-desktop',
+        extraResource: [
+            "bin"
+        ]
     },
     rebuildConfig: {},
     makers: [
@@ -44,14 +46,18 @@ const config: ForgeConfig = {
                     entry: 'src/preload.ts',
                     config: 'vite.preload.config.ts',
                 },
-                {
-                    entry: 'src/webview-preload.ts',
-                    config: 'vite.preload.config.ts',
-                },
+                // {
+                //     entry: 'src/webview-preload.ts',
+                //     config: 'vite.preload.config.ts',
+                // },
             ],
             renderer: [
                 {
                     name: 'main_window',
+                    config: 'vite.renderer.config.ts',
+                },
+                {
+                    name: 'fullscreen_window',
                     config: 'vite.renderer.config.ts',
                 },
             ],

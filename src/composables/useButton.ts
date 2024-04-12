@@ -1,9 +1,10 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import path from "path";
-import {shell} from "electron";
-import {exec} from "child_process";
+import path from 'path'
+import { shell } from 'electron'
+import { exec } from 'child_process'
 
-const inputBridgePath = path.join(__dirname, '..', 'bin', 'InputBridge', 'InputBridge.exe')
+const base = MAIN_WINDOW_VITE_DEV_SERVER_URL ? ['..', '..'] : ['..', '..', '..']
+const inputBridgePath = path.join(__dirname, ...base, 'bin', 'InputBridge', 'InputBridge.exe')
 
 function execHandler(err: Error | null, stdout: string, _stderr: string) {
     if (err) {
@@ -35,7 +36,7 @@ const inputs: string[] = [
     'LAUNCH_MEDIA_SELECT',
     'LAUNCH_APP1',
     'LAUNCH_APP2',
-];
+]
 
 export interface Button {
     name: string
@@ -67,7 +68,7 @@ export function useButton(button: Button) {
         const {key} = trigger
 
         if (inputs.includes(key)) {
-            exec(`${inputBridgePath} ${key}`, execHandler)
+            exec(`"${inputBridgePath}" ${key}`, execHandler)
         } else {
             console.error(`Invalid input key: ${key}`)
         }
