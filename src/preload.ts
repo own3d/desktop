@@ -20,14 +20,22 @@ contextBridge.exposeInMainWorld('electron', {
     getHostname: () =>
         ipcRenderer.invoke('hostname'),
     //
-    closeWindow: () =>
-        ipcRenderer.send('close-window'),
-    minimizeWindow: () =>
-        ipcRenderer.send('minimize-window'),
-    maximizeWindow: () =>
-        ipcRenderer.send('maximize-window'),
-    quit: () =>
-        ipcRenderer.send('quit'),
+    desktop: {
+        closeWindow: () =>
+            ipcRenderer.send('close-window'),
+        minimizeWindow: () =>
+            ipcRenderer.send('minimize-window'),
+        maximizeWindow: () =>
+            ipcRenderer.send('maximize-window'),
+        quit: () =>
+            ipcRenderer.send('quit'),
+        authenticate: (accessToken: unknown) =>
+            ipcRenderer.send('authenticate', accessToken),
+        getDeviceId: () =>
+            ipcRenderer.invoke('get-device-id'),
+    },
+
+    // deprecated
     authenticate: (accessToken: unknown) =>
         ipcRenderer.send('authenticate', accessToken),
     //
@@ -52,10 +60,9 @@ contextBridge.exposeInMainWorld('electron', {
     requestDisplayUpdate: () =>
         ipcRenderer.invoke('request-display-update'),
     //
-    getDeviceId: () =>
-        ipcRenderer.invoke('get-device-id'),
-    //
     obs: {
+        connected: (): Promise<boolean> =>
+            ipcRenderer.invoke('obs:connected'),
         credentials: (url?: string, password?: string): Promise<any> =>
             ipcRenderer.invoke('obs:credentials', url, password),
         connect: (url?: string, password?: string, identificationParams?: {}): Promise<any> =>

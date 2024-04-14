@@ -2,7 +2,7 @@
 // @ts-ignore
 import Config from 'electron-config'
 import electronSquirrelStartup from 'electron-squirrel-startup'
-import { app, BrowserWindow, globalShortcut, ipcMain, screen, session, shell } from 'electron'
+import { app, BrowserWindow, globalShortcut, ipcMain, Notification, screen, session, shell } from 'electron'
 import path from 'path'
 import { Button, useButton } from './composables/useButton'
 
@@ -14,6 +14,7 @@ import { emit } from './helpers'
 import { SettingsRepository } from './settings'
 import { AppLaunchWatcher } from './watch'
 import { EventSubscription } from 'obs-websocket-js'
+
 const {default: OBSWebSocket} = require('obs-websocket-js')
 import BrowserWindowConstructorOptions = Electron.BrowserWindowConstructorOptions
 import IpcMainInvokeEvent = Electron.IpcMainInvokeEvent
@@ -119,24 +120,48 @@ if (!gotTheLock) {
     })
 
     const obs = new OBSWebSocket()
+    let obsConnected: boolean = false
+
+    const handleObsDisconnect = () => {
+        if (obsConnected) {
+            new Notification({
+                title: 'OBS Studio disconnected',
+                body: 'The connection to OBS Studio has been lost.',
+            }).show()
+        }
+        obsConnected = false
+    }
 
     ipcMain.handle('obs:credentials', async (_event, ...args): Promise<void> => {
         return settingsRepository.commitSettings({
             obs: {
                 url: args[0],
                 password: args[1],
-            }
+            },
         })
+    })
+    ipcMain.handle('obs:connected', async (): Promise<boolean> => {
+        try {
+            await obs.call('GetStreamStatus')
+        } catch (e) {
+            handleObsDisconnect()
+        }
+        return obsConnected
     })
     ipcMain.handle('obs:connect', async (): Promise<any> => {
         const {url, password} = settingsRepository.getSettings().obs
         return await obs.connect(url, password, {
             rpcVersion: 1,
             eventSubscriptions: EventSubscription.All | EventSubscription.InputVolumeMeters,
+        }).then((response: any) => {
+            obsConnected = true
+            return response
         })
     })
     ipcMain.handle('obs:disconnect', async (): Promise<void> => {
-        return await obs.disconnect()
+        return await obs.disconnect().then(() => {
+            handleObsDisconnect()
+        })
     })
     ipcMain.handle('obs:call', async (_event, ...args): Promise<void> => {
         return await obs.call(...args)

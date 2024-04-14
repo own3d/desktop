@@ -63,17 +63,21 @@ declare global {
             image_url: string | null
         }
 
+        namespace desktop {
+            function closeWindow(): void
+
+            function minimizeWindow(): void
+
+            function maximizeWindow(): void
+
+            function quit(): void
+
+            function authenticate(authorization: Authorization): void
+
+            function getDeviceId(): Promise<string>
+        }
+
         function getSettings(): Promise<Settings>
-
-        function closeWindow(): void
-
-        function minimizeWindow(): void
-
-        function maximizeWindow(): void
-
-        function quit(): void
-
-        function authenticate(authorization: Authorization): void
 
         function toggleOverlay(): Promise<void>
 
@@ -89,9 +93,9 @@ declare global {
 
         function requestDisplayUpdate(): Promise<void>
 
-        function getDeviceId(): Promise<string>
-
         namespace obs {
+            function connected(): Promise<boolean>
+
             function connect(url?: string, password?: string, identificationParams?: {}): Promise<any>
 
             function disconnect(): Promise<void>
