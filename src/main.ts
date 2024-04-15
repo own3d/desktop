@@ -2,7 +2,7 @@
 // @ts-ignore
 import Config from 'electron-config'
 import electronSquirrelStartup from 'electron-squirrel-startup'
-import { app, BrowserWindow, globalShortcut, ipcMain, screen, session, shell } from 'electron'
+import { app, BrowserWindow, globalShortcut, ipcMain, Notification, screen, session, shell } from 'electron'
 import path from 'path'
 import { Button, useButton } from './composables/useButton'
 
@@ -13,6 +13,9 @@ import { GameWatcher } from './game-watcher'
 import { emit } from './helpers'
 import { SettingsRepository } from './settings'
 import { AppLaunchWatcher } from './watch'
+import { EventSubscription } from 'obs-websocket-js'
+
+const {default: OBSWebSocket} = require('obs-websocket-js')
 import BrowserWindowConstructorOptions = Electron.BrowserWindowConstructorOptions
 import IpcMainInvokeEvent = Electron.IpcMainInvokeEvent
 
@@ -41,6 +44,7 @@ if (!gotTheLock) {
 
     // add emitters for settings and games (used in preload.ts)
     settingsRepository.watch((settings: Settings) => emit('settings', settings))
+    // noinspection JSIgnoredPromiseFromCall
     gameWatcher.watch((verifiedGames: Array<VerifiedGame>) => emit('games', verifiedGames))
 
     // IPC events (used in preload.ts)
@@ -53,15 +57,15 @@ if (!gotTheLock) {
     ipcMain.handle('hostname', async () => {
         return !!argv.localhost ? 'http://localhost:3000' : (argv.hostname || 'https://www.own3d.pro')
     })
-    ipcMain.on('maximize-window', function (event) {
+    ipcMain.on('maximize-window', function () {
         console.log('maximize-window')
         mainWindow.isMaximized() ? mainWindow.unmaximize() : mainWindow.maximize()
     })
-    ipcMain.on('minimize-window', function (event) {
+    ipcMain.on('minimize-window', function () {
         console.log('minimize-window')
         mainWindow.minimize()
     })
-    ipcMain.on('close-window', function (event) {
+    ipcMain.on('close-window', function () {
         console.log('close-window')
         mainWindow.close()
         app.quit()
@@ -86,7 +90,7 @@ if (!gotTheLock) {
             browserSource.restore()
         }
 
-        settingsRepository.commitSettings({
+        await settingsRepository.commitSettings({
             overlay_disabled: isDisabled,
             overlay_muted: isDisabled,
         })
@@ -94,7 +98,7 @@ if (!gotTheLock) {
     ipcMain.handle('toggle-overlay-audio', async () => {
         const settings = settingsRepository.getSettings()
 
-        settingsRepository.commitSettings({
+        await settingsRepository.commitSettings({
             overlay_muted: !settings.overlay_muted,
         })
     })
@@ -115,13 +119,70 @@ if (!gotTheLock) {
         }
     })
 
+    const obs = new OBSWebSocket()
+    let obsConnected: boolean = false
 
-    ipcMain.on('authenticate', function (event, ...args) {
+    const handleObsDisconnect = () => {
+        if (obsConnected) {
+            new Notification({
+                title: 'OBS Studio disconnected',
+                body: 'The connection to OBS Studio has been lost.',
+            }).show()
+        }
+        obsConnected = false
+    }
+
+    ipcMain.handle('obs:credentials', async (_event, ...args): Promise<void> => {
+        return settingsRepository.commitSettings({
+            obs: {
+                url: args[0],
+                password: args[1],
+            },
+        })
+    })
+    ipcMain.handle('obs:connected', async (): Promise<boolean> => {
+        try {
+            await obs.call('GetStreamStatus')
+        } catch (e) {
+            handleObsDisconnect()
+        }
+        return obsConnected
+    })
+    ipcMain.handle('obs:connect', async (): Promise<any> => {
+        const {url, password} = settingsRepository.getSettings().obs
+        return await obs.connect(url, password, {
+            rpcVersion: 1,
+            eventSubscriptions: EventSubscription.All | EventSubscription.InputVolumeMeters,
+        }).then((response: any) => {
+            obsConnected = true
+            return response
+        })
+    })
+    ipcMain.handle('obs:disconnect', async (): Promise<void> => {
+        return await obs.disconnect().then(() => {
+            handleObsDisconnect()
+        })
+    })
+    ipcMain.handle('obs:call', async (_event, ...args): Promise<void> => {
+        return await obs.call(...args)
+    })
+    ipcMain.handle('obs:call-batch', async (_event, ...args): Promise<void> => {
+        return await obs.callBatch(...args)
+    })
+
+    // patching the emit function to forward events to the renderer process
+    const oldEmit = obs.emit
+    obs.emit = function () {
+        emit(`obs:${arguments[0]}`, ...arguments)
+        oldEmit.apply(obs, arguments)
+    }
+
+    ipcMain.on('authenticate', async (_event, ...args): Promise<void> => {
         const isFreshlyAuthenticated = !authorization
         authorization = args[0] as Authorization
         if (isFreshlyAuthenticated) {
             try {
-                handleAuthenticated(authorization)
+                await handleAuthenticated(authorization)
             } catch (e) {
                 console.log('Error while authenticating:', e)
             }
@@ -133,7 +194,7 @@ if (!gotTheLock) {
         app.quit()
     }
 
-    app.on('second-instance', (event, commandLine, workingDirectory) => {
+    app.on('second-instance', () => {
         // Someone tried to run a second instance, we should focus our window.
         if (mainWindow) {
             if (mainWindow.isMinimized()) mainWindow.restore()
@@ -181,12 +242,12 @@ if (!gotTheLock) {
     // code. You can also put them in separate files and import them here.
     let authorization: Authorization
 
-    const handleAuthenticated = (authorization: Authorization) => {
+    const handleAuthenticated = async (authorization: Authorization) => {
         console.log('Authenticated:', {
             name: authorization.data.name,
             id: authorization.data.id,
         })
-        settingsRepository.commitSettings({
+        await settingsRepository.commitSettings({
             room: `90a951d1-ea50-4fda-8c4d-275b81f7d219.own3d.${authorization.data.id}`,
         })
         console.log(`Starting socket client for ${authorization.data.name}...`)
@@ -235,13 +296,15 @@ if (!gotTheLock) {
 
         // and load the index.html of the app.
         if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
+            // noinspection JSIgnoredPromiseFromCall
             mainWindow.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL)
         } else {
+            // noinspection JSIgnoredPromiseFromCall
             mainWindow.loadFile(path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`))
         }
 
         // Open the DevTools.
-        if (process.argv.includes('--devtools')) {
+        if (argv.devtools) {
             mainWindow.webContents.openDevTools()
         }
 
@@ -255,6 +318,7 @@ if (!gotTheLock) {
 
         // handle external urls
         mainWindow.webContents.setWindowOpenHandler(({url}) => {
+            // noinspection JSIgnoredPromiseFromCall
             shell.openExternal(url)
             return {action: 'deny'}
         })
@@ -304,7 +368,7 @@ if (!gotTheLock) {
         // Create the browser window.
         browserSource = new BrowserWindow(options)
 
-        // Enables staying on fullscreen apps for macos https://github.com/electron/electron/pull/11599
+        // Enables staying on fullscreen apps for macOS https://github.com/electron/electron/pull/11599
         browserSource.setFullScreenable(false)
 
         // VisibleOnFullscreen removed in https://github.com/electron/electron/pull/21706
@@ -318,8 +382,10 @@ if (!gotTheLock) {
 
         // and load the index.html of the app.
         if (FULLSCREEN_WINDOW_VITE_DEV_SERVER_URL) {
+            // noinspection JSIgnoredPromiseFromCall
             browserSource.loadURL(`${FULLSCREEN_WINDOW_VITE_DEV_SERVER_URL}/fullscreen.html`)
         } else {
+            // noinspection JSIgnoredPromiseFromCall
             browserSource.loadFile(path.join(__dirname, `../renderer/${FULLSCREEN_WINDOW_VITE_NAME}/fullscreen.html`))
         }
 
@@ -349,7 +415,7 @@ if (!gotTheLock) {
         }
 
         // capture all console.log from the browser source and forward them to the main process
-        browserSource.webContents.on('console-message', (event, level, message) => {
+        browserSource.webContents.on('console-message', (_event, _level, message) => {
             console.log('BrowserSource:', message)
         })
     }
