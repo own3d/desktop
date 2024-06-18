@@ -25,6 +25,22 @@
         </button>
       </div>
     </div>
+    <div
+        id="outside-warning"
+        class="hidden bg-amber-400 text-black text-center p-2"
+    >
+      <i class="fal fa-fw fa-exclamation-triangle"></i>
+      <span class="ml-1">
+        You're have left OWN3D Pro.
+        <a
+            href="#"
+            onclick="window.resetWebview()"
+            class="ml-2 underline font-medium"
+        >
+          Return to OWN3D Pro
+        </a>
+      </span>
+    </div>
     <div class="flex-1 flex justify-center text-white" id="webview-loader">
       <div class="self-center">
         <i class="fa-light fa-fw fa-spinner-third fa-spin fa-4x text-zinc-500"></i>

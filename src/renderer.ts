@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // @ts-ignore
     const hostname = await window.electron.getHostname()
     const webviewLoader: HTMLElement = document.querySelector('#webview-loader')
+    const outsideWarning: HTMLElement = document.querySelector('#outside-warning')
     const webviewContainer: HTMLElement = document.querySelector('#webview-container')
     const webview: Electron.WebviewTag = document.createElement('webview')
     webview.setAttribute('src', `${hostname}/dashboard/`)
@@ -58,6 +59,19 @@ document.addEventListener('DOMContentLoaded', async () => {
         webviewContainer.classList.add('hidden')
 
         const url = new URL(e.url)
+
+        const inside = [
+            'www.own3d.pro',
+            'api.own3d.pro',
+            'id.stream.tv',
+        ].includes(url.hostname)
+
+        if (inside) {
+            outsideWarning.classList.add('hidden')
+        } else {
+            outsideWarning.classList.remove('hidden')
+        }
+
         if (url.hostname === hostname
             && !url.pathname.startsWith('/dashboard/')) {
             webview.loadURL(`https://${url.hostname}/dashboard/`)
@@ -75,4 +89,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         webviewLoader.classList.add('hidden')
         webviewContainer.classList.remove('hidden')
     })
+
+    // @ts-ignore
+    window.resetWebview = async () => {
+        // @ts-ignore
+        const hostname = await window.electron.getHostname()
+        webview.setAttribute('src', `${hostname}/dashboard/`)
+        outsideWarning.classList.add('hidden')
+    }
 })
