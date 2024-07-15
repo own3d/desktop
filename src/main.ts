@@ -19,6 +19,11 @@ const {default: OBSWebSocket} = require('obs-websocket-js')
 import BrowserWindowConstructorOptions = Electron.BrowserWindowConstructorOptions
 import IpcMainInvokeEvent = Electron.IpcMainInvokeEvent
 
+
+/*
+ * You can start the app with the following command:
+ * yarn start --- --- --devtools --localhost
+ */
 const argv: {
     _: string[]
     devtools?: boolean
