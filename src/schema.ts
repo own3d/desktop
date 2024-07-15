@@ -61,6 +61,10 @@ export interface Settings {
     hotkeys?: {
         exit: string
     }
+    obs?: {
+        url: string
+        password: string
+    }
     display?: Display | null
     room?: string | null
 }
