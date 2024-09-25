@@ -50,6 +50,11 @@ const gotTheLock = app.requestSingleInstanceLock()
 if (!gotTheLock) {
     app.quit()
 } else {
+    // Handle creating/removing shortcuts on Windows when installing/uninstalling.
+    if (electronSquirrelStartup) {
+        app.quit()
+    }
+
     const {bind, get} = useContainer()
 
     bind(SettingsRepository, new SettingsRepository())
@@ -63,11 +68,6 @@ if (!gotTheLock) {
     get(SettingsRepository).watch((settings: Settings) => emit('settings', settings))
     // noinspection JSIgnoredPromiseFromCall
     get(GameWatcher).watch((verifiedGames: Array<VerifiedGame>) => emit('games', verifiedGames))
-
-    // Handle creating/removing shortcuts on Windows when installing/uninstalling.
-    if (electronSquirrelStartup) {
-        app.quit()
-    }
 
     app.on('second-instance', () => {
         // Someone tried to run a second instance, we should focus our window.
