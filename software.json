@@ -1,0 +1,25 @@
+[
+  {
+    "name": "obs-own3d-desktop-connector",
+    "description": "OWN3D Desktop Connector",
+    "version": "1.0.0",
+    "files": [
+      {
+        "file": "obs-own3d-pro-connector-1.0.0-windows-x64-Installer.exe",
+        "args": ["/VERYSILENT", "/FORCECLOSEAPPLICATIONS", "/NORESTART"],
+        "platform": "windows"
+      }
+    ]
+  },
+  {
+    "name": "obs-studio",
+    "description": "OBS Studio",
+    "version": "30.2.3",
+    "files": [
+      {
+        "file": "OBS-Studio-30.2.3-Windows-Installer.exe",
+        "platform": "windows"
+      }
+    ]
+  }
+]

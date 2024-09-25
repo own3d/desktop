@@ -5,6 +5,7 @@ import { contextBridge, ipcRenderer } from 'electron'
 import { Settings, VerifiedGame } from './schema'
 import { RequestBatchOptions, RequestBatchRequest, ResponseMessage } from 'obs-websocket-js'
 import IpcRendererEvent = Electron.IpcRendererEvent
+import { InstallProgress, SoftwareName } from './composables/useSoftware'
 
 contextBridge.exposeInMainWorld('versions', {
     node: () => process.versions.node,
@@ -59,7 +60,14 @@ contextBridge.exposeInMainWorld('electron', {
         ipcRenderer.invoke('get-displays'),
     requestDisplayUpdate: () =>
         ipcRenderer.invoke('request-display-update'),
-    //
+    // Software APIs
+    software: {
+        get: (name: SoftwareName) =>
+            ipcRenderer.invoke('software:get', name),
+        install: (name: SoftwareName, progressCallback: (progress: InstallProgress) => void) =>
+            ipcRenderer.invoke('software:install', name, progressCallback),
+    },
+    // OBS Studio WebSocket API
     obs: {
         connected: (): Promise<boolean> =>
             ipcRenderer.invoke('obs:connected'),

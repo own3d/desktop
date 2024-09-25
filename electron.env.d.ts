@@ -1,4 +1,5 @@
 import { RequestBatchOptions, RequestBatchRequest, ResponseMessage } from 'obs-websocket-js'
+import { InstallProgress, Software, SoftwareName } from './src/composables/useSoftware'
 
 export {} // Make this a module
 
@@ -75,6 +76,25 @@ declare global {
             function authenticate(authorization: Authorization): void
 
             function getDeviceId(): Promise<string>
+        }
+
+        /**
+         * Beta API to interact with software packages
+         */
+        namespace software {
+            /**
+             * Get the status of a software package
+             */
+            function get(name: SoftwareName): Promise<Software>
+
+            /**
+             * Install a software package (requires admin privileges)
+             * Throws an error if the software is not installable
+             */
+            function install(
+                name: SoftwareName,
+                progressCallback: (progress: InstallProgress) => void
+            ): Promise<Software>
         }
 
         function getSettings(): Promise<Settings>
