@@ -1,8 +1,11 @@
 import { ipcMain, Notification } from 'electron'
-import { discoverObsWebsocketCredentials } from '../helpers'
+import { discoverObsWebsocketCredentials, getAppData } from '../helpers'
 import OBSWebSocket, { EventSubscription } from 'obs-websocket-js'
 import { SettingsRepository } from '../settings'
 import { useContainer } from '../composables/useContainer'
+import fs from 'fs'
+import { useCache } from '../composables/useCache'
+import path from 'path'
 
 export function registerObsWebSocketHandlers() {
     const {get} = useContainer()
@@ -19,6 +22,90 @@ export function registerObsWebSocketHandlers() {
             }).show()
         }
         obsConnected = false
+    }
+
+    const handleOwn3dVendorRequest = async (requestType: string, requestData: any) => {
+        console.log('Own3d vendor request:', requestType, requestData)
+
+        switch (requestType) {
+            case 'CreateSceneTransition':
+                await handleCreateSceneTransition(requestData)
+                break
+            default:
+                throw new Error(`Unknown Own3d vendor request type: ${requestType}`)
+        }
+    }
+
+    const handleCreateSceneTransition = async (requestData: {
+        id: string
+        name: string
+        settings: {
+            path: string
+            transition_point: number
+        }
+    }) => {
+        const tempSceneCollectionName = 'Temporary'
+        const scenesDirectory = path.join(getAppData(), 'obs-studio', 'basic', 'scenes')
+
+        // Step 1: Get the current scene collection name
+        const {
+            currentSceneCollectionName,
+            sceneCollections,
+        } = await obs.call('GetSceneCollectionList')
+
+        if (!currentSceneCollectionName || currentSceneCollectionName === tempSceneCollectionName) {
+            throw new Error('Could not get current scene collection name')
+        }
+
+        const sceneFiles = fs.readdirSync(scenesDirectory)
+        // find json file with the same name as the current scene collection name (which is defined inside the json file)
+        const sceneFile = sceneFiles.map((file) => {
+            const filePath = path.join(scenesDirectory, file)
+            const fileContents = JSON.parse(fs.readFileSync(filePath, 'utf-8'))
+            return {filePath, fileContents}
+        }).find(({fileContents}) => fileContents.name === currentSceneCollectionName) as {
+            filePath: string
+            fileContents: {
+                transitions: {
+                    name: string
+                    id: string
+                    settings: {
+                        path: string
+                        transition_point: number
+                    }
+                }[]
+            },
+        } | undefined
+
+        if (!sceneFile) {
+            throw new Error(`Could not find scene file for scene collection: ${currentSceneCollectionName}`)
+        }
+
+        // Step 2: Create a temporary scene collection
+        if (!sceneCollections.includes(tempSceneCollectionName)) {
+            await obs.call('CreateSceneCollection', {
+                sceneCollectionName: tempSceneCollectionName,
+            })
+        } else {
+            await obs.call('SetCurrentSceneCollection', {
+                sceneCollectionName: tempSceneCollectionName,
+            })
+        }
+
+        try {
+            // Step 3: Cache the asset and modify the scene file
+            const {path} = await useCache().cacheAsset(requestData.settings.path)
+            requestData.settings.path = path
+            sceneFile.fileContents.transitions.push(requestData)
+            fs.writeFileSync(sceneFile.filePath, JSON.stringify(sceneFile.fileContents, null, 2))
+        } catch(e) {
+            throw e
+        } finally {
+            // Step 4: Restore the original scene collection
+            await obs.call('SetCurrentSceneCollection', {
+                sceneCollectionName: currentSceneCollectionName,
+            })
+        }
     }
 
     ipcMain.handle('obs:credentials', async (_event, ...args): Promise<void> => {
@@ -68,6 +155,14 @@ export function registerObsWebSocketHandlers() {
         })
     })
     ipcMain.handle('obs:call', async (_event, ...args): Promise<void> => {
+        // intercept OWN3D vendor requests
+        if (args[0] === 'CallVendorRequest') {
+            const {vendorName, requestType, requestData} = args[1]
+            if (vendorName === 'OWN3D') {
+                return handleOwn3dVendorRequest(requestType, requestData)
+            }
+        }
+
         // @ts-ignore
         return await obs.call(...args)
     })

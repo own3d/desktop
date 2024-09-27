@@ -34,28 +34,45 @@ export function getAppData(): string {
 }
 
 /**
- * todo: update this function to support the new config.json format
  * Settings stored in global.ini will now be in plugin_config/obs-websocket/config.json
  * Persistent data stored in obsWebSocketPersistentData.json is now
  * located in plugin_config/obs-websocket/persistent_data.json
  */
 export function discoverObsWebsocketCredentials(): OBSWebSocketConfig | undefined {
-    // on windows the ini file is located at %appdata%\obs-studio\global.ini
+    return discoverObsWebsocketCredentialsNew()
+        || discoverObsWebsocketCredentialsOld()
+}
+
+function discoverObsWebsocketCredentialsNew(): OBSWebSocketConfig | undefined {
+    const obsConfigPathNew = path.join(getAppData(), 'obs-studio', 'plugin_config', 'obs-websocket', 'config.json')
+
+    if (fs.existsSync(obsConfigPathNew)) {
+        const obsConfig = JSON.parse(fs.readFileSync(obsConfigPathNew, 'utf-8'))
+
+        return {
+            AlertsEnabled: obsConfig['alerts_enabled'],
+            AuthRequired: obsConfig['auth_required'],
+            FirstLoad: obsConfig['first_load'],
+            ServerEnabled: obsConfig['server_enabled'],
+            ServerPassword: obsConfig['server_password'],
+            ServerPort: obsConfig['server_port'],
+        } as OBSWebSocketConfig
+    }
+}
+
+function discoverObsWebsocketCredentialsOld(): OBSWebSocketConfig | undefined {
     const obsConfigPath = path.join(getAppData(), 'obs-studio', 'global.ini')
 
-    if (!fs.existsSync(obsConfigPath)) {
-        console.error(`OBS config file not found: ${obsConfigPath}`)
-        return
+    if (fs.existsSync(obsConfigPath)) {
+        const obsConfig = ini.parse(fs.readFileSync(obsConfigPath, 'utf-8'))
+
+        if (!obsConfig['OBSWebSocket']) {
+            console.error('OBSWebSocket section not found in OBS config')
+            return
+        }
+
+        return obsConfig['OBSWebSocket'] as OBSWebSocketConfig
     }
-
-    const obsConfig = ini.parse(fs.readFileSync(obsConfigPath, 'utf-8'))
-
-    if (!obsConfig['OBSWebSocket']) {
-        console.error('OBSWebSocket section not found in OBS config')
-        return
-    }
-
-    return obsConfig['OBSWebSocket']
 }
 
 export function getPatchedOBSWebSocket(): OBSWebSocket {

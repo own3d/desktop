@@ -4,6 +4,7 @@ import { io } from 'socket.io-client'
 import { Button, useButton } from '../composables/useButton'
 import { SettingsRepository } from '../settings'
 import { useContainer } from '../composables/useContainer'
+import axios from 'axios'
 
 export function registerAuthHandlers() {
     const {get} = useContainer()
@@ -15,6 +16,7 @@ export function registerAuthHandlers() {
             name: authorization.data.name,
             id: authorization.data.id,
         })
+        axios.defaults.headers.common['Authorization'] = authorization.token
         await settingsRepository.commitSettings({
             room: `90a951d1-ea50-4fda-8c4d-275b81f7d219.own3d.${authorization.data.id}`,
         })
