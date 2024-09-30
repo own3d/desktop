@@ -19,6 +19,7 @@ import { useContainer } from './composables/useContainer'
 import OBSWebSocket from 'obs-websocket-js'
 import { createMainWindow } from './window/mainWindow'
 import { createBrowserSourceWindow } from './window/browserSource'
+import {useRpcServer} from "./composables/useRpcServer";
 
 export interface Argv {
     _: string[]
@@ -119,4 +120,7 @@ if (!gotTheLock) {
     registerObsWebSocketHandlers()
     registerSoftwareHandlers()
     registerAuthHandlers()
+
+    // start json-rpc server
+    useRpcServer()
 }
