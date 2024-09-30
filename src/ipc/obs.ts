@@ -125,32 +125,42 @@ export function registerObsWebSocketHandlers() {
         return obsConnected
     })
     ipcMain.handle('obs:connect', async (): Promise<void> => {
-        const {obs} = settingsRepository.getSettings();
-        if (!obs) {
-            return Promise.reject('OBS settings not found')
-        }
-        const {url, password} = obs
+        let {obs: obsSettings} = settingsRepository.getSettings();
+        if (!obsSettings) obsSettings = {url: 'auto', password: 'auto'}
+        const {url, password} = obsSettings
         if (url === 'auto' || password === 'auto') {
-            const {ServerEnabled, ServerPort, ServerPassword} = discoverObsWebsocketCredentials()
+            const credentials = discoverObsWebsocketCredentials()
+            if (!credentials) {
+                return Promise.reject('Could not discover OBS WebSocket credentials')
+            }
+            const {ServerEnabled, ServerPort, ServerPassword} = credentials
             if (!ServerEnabled) {
                 return Promise.reject('OBS WebSocket server not enabled')
             }
-            return await obs.connect(`ws://localhost:${ServerPort}`, ServerPassword, {
+            try {
+                return obs.connect(`ws://localhost:${ServerPort}`, ServerPassword, {
+                    rpcVersion: 1,
+                    eventSubscriptions: EventSubscription.All | EventSubscription.InputVolumeMeters,
+                }).then((response: unknown) => {
+                    obsConnected = true
+                    return response
+                })
+            } catch (e) {
+                return Promise.reject('Could not connect to OBS WebSocket server')
+            }
+        }
+
+        try {
+            return obs.connect(url, password, {
                 rpcVersion: 1,
                 eventSubscriptions: EventSubscription.All | EventSubscription.InputVolumeMeters,
             }).then((response: unknown) => {
                 obsConnected = true
                 return response
             })
+        } catch (e) {
+            return Promise.reject('Could not connect to OBS WebSocket server')
         }
-
-        return await obs.connect(url, password, {
-            rpcVersion: 1,
-            eventSubscriptions: EventSubscription.All | EventSubscription.InputVolumeMeters,
-        }).then((response: unknown) => {
-            obsConnected = true
-            return response
-        })
     })
     ipcMain.handle('obs:disconnect', async (): Promise<void> => {
         return await obs.disconnect().then(() => {

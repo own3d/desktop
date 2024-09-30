@@ -1,12 +1,18 @@
-import { BrowserWindow } from 'electron'
+import {BrowserWindow} from 'electron'
 import fs from 'fs'
 import path from 'path'
 import ini from 'ini'
 import node_process from 'node:process'
-import { default as OBSWebSocket } from 'obs-websocket-js'
-import { createMainWindow } from './window/mainWindow'
+import {default as OBSWebSocket} from 'obs-websocket-js'
+import {createMainWindow} from './window/mainWindow'
 
 const {default: OBS} = require('obs-websocket-js')
+
+const jsonPath = path.join('obs-studio', 'plugin_config', 'obs-websocket', 'config.json')
+const wellKnownJsonPaths = [
+    path.join(getAppData(), jsonPath),
+    path.join(getHome(), '.var', 'app', 'com.obsproject.Studio', 'config', jsonPath),
+]
 
 export interface OBSWebSocketConfig {
     FirstLoad: boolean,
@@ -25,6 +31,9 @@ export function emit(event: any, ...args: any) {
     })
 }
 
+/**
+ * Get the user's app data directory
+ */
 export function getAppData(): string {
     if (process.env.APPDATA)
         return process.env.APPDATA
@@ -34,19 +43,27 @@ export function getAppData(): string {
 }
 
 /**
+ * Get the user's home directory
+ */
+export function getHome(): string {
+    return process.env.HOME
+}
+
+/**
  * Settings stored in global.ini will now be in plugin_config/obs-websocket/config.json
  * Persistent data stored in obsWebSocketPersistentData.json is now
  * located in plugin_config/obs-websocket/persistent_data.json
  */
 export function discoverObsWebsocketCredentials(): OBSWebSocketConfig | undefined {
-    return discoverObsWebsocketCredentialsNew()
+    return discoverObsWebsocketCredentialsNew(wellKnownJsonPaths)
         || discoverObsWebsocketCredentialsOld()
 }
 
-function discoverObsWebsocketCredentialsNew(): OBSWebSocketConfig | undefined {
-    const obsConfigPathNew = path.join(getAppData(), 'obs-studio', 'plugin_config', 'obs-websocket', 'config.json')
+function discoverObsWebsocketCredentialsNew(wellKnownPaths): OBSWebSocketConfig | undefined {
+    const obsConfigPathNew = wellKnownPaths.find(fs.existsSync)
 
-    if (fs.existsSync(obsConfigPathNew)) {
+    if (obsConfigPathNew) {
+        console.log(`Found OBS config at ${obsConfigPathNew}`)
         const obsConfig = JSON.parse(fs.readFileSync(obsConfigPathNew, 'utf-8'))
 
         return {
@@ -64,6 +81,7 @@ function discoverObsWebsocketCredentialsOld(): OBSWebSocketConfig | undefined {
     const obsConfigPath = path.join(getAppData(), 'obs-studio', 'global.ini')
 
     if (fs.existsSync(obsConfigPath)) {
+        console.log(`Found OBS config at ${obsConfigPath}`)
         const obsConfig = ini.parse(fs.readFileSync(obsConfigPath, 'utf-8'))
 
         if (!obsConfig['OBSWebSocket']) {
