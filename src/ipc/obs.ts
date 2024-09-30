@@ -1,10 +1,10 @@
-import { ipcMain, Notification } from 'electron'
-import { discoverObsWebsocketCredentials, getAppData } from '../helpers'
-import OBSWebSocket, { EventSubscription } from 'obs-websocket-js'
-import { SettingsRepository } from '../settings'
-import { useContainer } from '../composables/useContainer'
+import {ipcMain, Notification} from 'electron'
+import {discoverObsWebsocketCredentials, getAppData} from '../helpers'
+import OBSWebSocket, {EventSubscription} from 'obs-websocket-js'
+import {SettingsRepository} from '../settings'
+import {useContainer} from '../composables/useContainer'
 import fs from 'fs'
-import { useCache } from '../composables/useCache'
+import {useCache} from '../composables/useCache'
 import path from 'path'
 
 export function registerObsWebSocketHandlers() {
@@ -12,7 +12,7 @@ export function registerObsWebSocketHandlers() {
     const settingsRepository = get(SettingsRepository)
     const obs = get(OBSWebSocket)
 
-    let obsConnected: boolean = false
+    let obsConnected = false
 
     const handleObsDisconnect = () => {
         if (obsConnected) {
@@ -24,15 +24,14 @@ export function registerObsWebSocketHandlers() {
         obsConnected = false
     }
 
-    const handleOwn3dVendorRequest = async (requestType: string, requestData: any) => {
+    const handleOwn3dVendorRequest = async (requestType: string, requestData: unknown) => {
         console.log('Own3d vendor request:', requestType, requestData)
 
         switch (requestType) {
             case 'CreateSceneTransition':
-                await handleCreateSceneTransition(requestData)
-                break
+                return await handleCreateSceneTransition(requestData)
             default:
-                throw new Error(`Unknown Own3d vendor request type: ${requestType}`)
+                return Promise.reject(`Unknown Own3d vendor request type: ${requestType}`)
         }
     }
 
@@ -43,7 +42,7 @@ export function registerObsWebSocketHandlers() {
             path: string
             transition_point: number
         }
-    }) => {
+    }): Promise<void> => {
         const tempSceneCollectionName = 'Temporary'
         const scenesDirectory = path.join(getAppData(), 'obs-studio', 'basic', 'scenes')
 
@@ -54,7 +53,7 @@ export function registerObsWebSocketHandlers() {
         } = await obs.call('GetSceneCollectionList')
 
         if (!currentSceneCollectionName || currentSceneCollectionName === tempSceneCollectionName) {
-            throw new Error('Could not get current scene collection name')
+            return Promise.reject('Could not get current scene collection name')
         }
 
         const sceneFiles = fs.readdirSync(scenesDirectory)
@@ -78,7 +77,7 @@ export function registerObsWebSocketHandlers() {
         } | undefined
 
         if (!sceneFile) {
-            throw new Error(`Could not find scene file for scene collection: ${currentSceneCollectionName}`)
+            return Promise.reject(`Could not find scene file for scene collection: ${currentSceneCollectionName}`)
         }
 
         // Step 2: Create a temporary scene collection
@@ -98,8 +97,9 @@ export function registerObsWebSocketHandlers() {
             requestData.settings.path = path
             sceneFile.fileContents.transitions.push(requestData)
             fs.writeFileSync(sceneFile.filePath, JSON.stringify(sceneFile.fileContents, null, 2))
-        } catch(e) {
-            throw e
+            // eslint-disable-next-line no-useless-catch
+        } catch (e) {
+            return Promise.reject(e)
         } finally {
             // Step 4: Restore the original scene collection
             await obs.call('SetCurrentSceneCollection', {
@@ -124,18 +124,21 @@ export function registerObsWebSocketHandlers() {
         }
         return obsConnected
     })
-    ipcMain.handle('obs:connect', async (): Promise<any> => {
-        const {url, password} = settingsRepository.getSettings().obs
+    ipcMain.handle('obs:connect', async (): Promise<void> => {
+        const {obs} = settingsRepository.getSettings();
+        if (!obs) {
+            return Promise.reject('OBS settings not found')
+        }
+        const {url, password} = obs
         if (url === 'auto' || password === 'auto') {
             const {ServerEnabled, ServerPort, ServerPassword} = discoverObsWebsocketCredentials()
             if (!ServerEnabled) {
-                throw new Error('OBS WebSockets plugin is not enabled')
+                return Promise.reject('OBS WebSocket server not enabled')
             }
-
             return await obs.connect(`ws://localhost:${ServerPort}`, ServerPassword, {
                 rpcVersion: 1,
                 eventSubscriptions: EventSubscription.All | EventSubscription.InputVolumeMeters,
-            }).then((response: any) => {
+            }).then((response: unknown) => {
                 obsConnected = true
                 return response
             })
@@ -144,7 +147,7 @@ export function registerObsWebSocketHandlers() {
         return await obs.connect(url, password, {
             rpcVersion: 1,
             eventSubscriptions: EventSubscription.All | EventSubscription.InputVolumeMeters,
-        }).then((response: any) => {
+        }).then((response: unknown) => {
             obsConnected = true
             return response
         })
@@ -163,10 +166,12 @@ export function registerObsWebSocketHandlers() {
             }
         }
 
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         return await obs.call(...args)
     })
     ipcMain.handle('obs:call-batch', async (_event, ...args): Promise<void> => {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         return await obs.callBatch(...args)
     })
