@@ -55,8 +55,10 @@
     "electron-config": "^2.0.0",
     "electron-squirrel-startup": "^1.0.0",
     "ini": "^4.1.3",
+    "json-rpc-2.0": "^1.7.0",
     "node-machine-id": "^1.1.12",
     "obs-websocket-js": "^5.0.5",
+    "socket.io": "^4.8.0",
     "socket.io-client": "^4.7.5",
     "update-electron-app": "^3.0.0",
     "vue": "^3.4.21"
