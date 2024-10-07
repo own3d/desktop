@@ -1,6 +1,3 @@
-import { RequestBatchOptions, RequestBatchRequest, ResponseMessage } from 'obs-websocket-js'
-import { InstallProgress, Software, SoftwareName } from './src/composables/useSoftware'
-
 export {} // Make this a module
 
 declare global {
@@ -64,6 +61,64 @@ declare global {
             image_url: string | null
         }
 
+        type SoftwareName = 'obs-studio' | 'obs-own3d-desktop-connector';
+
+        interface Software {
+            installed: boolean;
+            name: SoftwareName;
+            paths?: {
+                binary: string;
+                plugins?: string;
+            };
+        }
+
+        interface InstallProgress {
+            status: 'downloading' | 'installing';
+            progress: number;
+            status_code?: number;
+        }
+
+        type RequestBatchOptions = {
+            /**
+             * The mode of execution obs-websocket will run the batch in
+             */
+            executionType?: RequestBatchExecutionType;
+            /**
+             * Whether obs-websocket should stop executing the batch if one request fails
+             */
+            haltOnFailure?: boolean;
+        };
+
+        declare enum RequestBatchExecutionType {
+            None = -1,
+            SerialRealtime = 0,
+            SerialFrame = 1,
+            Parallel = 2
+        }
+
+        type RequestBatchRequest<T = keyof unknown> = T extends keyof unknown ? unknown[T] extends never ? {
+            requestType: T;
+            requestId?: string;
+        } : {
+            requestType: T;
+            requestId?: string;
+            requestData: unknown[T];
+        } : never;
+
+        type ResponseMessage<T = keyof unknown> = T extends keyof unknown ? {
+            requestType: T;
+            requestId: string;
+            requestStatus: {
+                result: true;
+                code: number;
+            } | {
+                result: false;
+                code: number;
+                comment: string;
+            };
+            responseData: unknown[T];
+        } : never;
+
         namespace desktop {
             function closeWindow(): void
 
@@ -93,7 +148,7 @@ declare global {
              */
             function install(
                 name: SoftwareName,
-                progressCallback: (progress: InstallProgress) => void
+                progressCallback: (progress: InstallProgress) => void,
             ): Promise<Software>
         }
 

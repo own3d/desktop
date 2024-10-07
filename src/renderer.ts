@@ -64,6 +64,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             'www.own3d.pro',
             'api.own3d.pro',
             'id.stream.tv',
+            'localhost',
         ].includes(url.hostname)
 
         if (inside) {
