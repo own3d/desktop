@@ -16,6 +16,10 @@ const defaults: Settings = {
     },
     display: null,
     room: null,
+    obs: {
+        url: 'auto',
+        password: 'auto',
+    }
 }
 
 export class SettingsRepository {
