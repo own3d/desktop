@@ -28,6 +28,12 @@ export function emit(event: any, ...args: any) {
     BrowserWindow.getAllWindows().forEach((win) => {
         if (win.isDestroyed()) return
         win.webContents.send(event, ...args)
+        // noinspection JSIgnoredPromiseFromCall
+        win.webContents.executeJavaScript(`
+            Array.from(document.querySelectorAll('webview')).forEach((webview) => {
+                webview.send('${event}', ...${JSON.stringify(args)});
+            });
+        `);
     })
 }
 
