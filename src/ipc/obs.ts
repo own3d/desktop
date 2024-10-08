@@ -1,10 +1,10 @@
-import {ipcMain, Notification} from 'electron'
-import {discoverObsWebsocketCredentials, getAppData} from '../helpers'
-import OBSWebSocket, {EventSubscription} from 'obs-websocket-js'
-import {SettingsRepository} from '../settings'
-import {useContainer} from '../composables/useContainer'
+import { ipcMain, Notification } from 'electron'
+import { discoverObsWebsocketCredentials, getAppData } from '../helpers'
+import OBSWebSocket, { EventSubscription } from 'obs-websocket-js'
+import { SettingsRepository } from '../settings'
+import { useContainer } from '../composables/useContainer'
 import fs from 'fs'
-import {useCache} from '../composables/useCache'
+import { useCache } from '../composables/useCache'
 import path from 'path'
 
 export function registerObsWebSocketHandlers() {
@@ -13,16 +13,36 @@ export function registerObsWebSocketHandlers() {
     const obs = get(OBSWebSocket)
 
     let obsConnected = false
+    obs.on('ConnectionOpened', () => {
+        obsConnected = true
+        new Notification({
+            title: 'OBS Studio connected',
+            body: 'You are now connected to OBS Studio.',
+        }).show()
+    })
 
-    const handleObsDisconnect = () => {
-        if (obsConnected) {
-            new Notification({
-                title: 'OBS Studio disconnected',
-                body: 'The connection to OBS Studio has been lost.',
-            }).show()
-        }
+    obs.on('ConnectionClosed', () => {
         obsConnected = false
-    }
+        new Notification({
+            title: 'OBS Studio disconnected',
+            body: 'The connection to OBS Studio has been lost.',
+        }).show()
+    })
+
+    obs.on('ConnectionError', () => {
+        new Notification({
+            title: 'OBS Studio connection error',
+            body: 'An error occurred while trying to connect to OBS Studio.',
+        }).show()
+    })
+
+    obs.on('Hello', () => {
+        console.log('Hello')
+    })
+
+    obs.on('Identified', () => {
+        console.log('Identified')
+    })
 
     const handleOwn3dVendorRequest = async (requestType: string, requestData: unknown) => {
         console.log('Own3d vendor request:', requestType, requestData)
@@ -117,15 +137,10 @@ export function registerObsWebSocketHandlers() {
         })
     })
     ipcMain.handle('obs:connected', async (): Promise<boolean> => {
-        try {
-            await obs.call('GetStreamStatus')
-        } catch (e) {
-            handleObsDisconnect()
-        }
         return obsConnected
     })
     ipcMain.handle('obs:connect', async (): Promise<void> => {
-        let {obs: obsSettings} = settingsRepository.getSettings();
+        let {obs: obsSettings} = settingsRepository.getSettings()
         if (!obsSettings) obsSettings = {url: 'auto', password: 'auto'}
         const {url, password} = obsSettings
         if (url === 'auto' || password === 'auto') {
@@ -141,9 +156,6 @@ export function registerObsWebSocketHandlers() {
                 return obs.connect(`ws://localhost:${ServerPort}`, ServerPassword, {
                     rpcVersion: 1,
                     eventSubscriptions: EventSubscription.All | EventSubscription.InputVolumeMeters,
-                }).then((response: unknown) => {
-                    obsConnected = true
-                    return response
                 })
             } catch (e) {
                 return Promise.reject('Could not connect to OBS WebSocket server')
@@ -154,18 +166,13 @@ export function registerObsWebSocketHandlers() {
             return obs.connect(url, password, {
                 rpcVersion: 1,
                 eventSubscriptions: EventSubscription.All | EventSubscription.InputVolumeMeters,
-            }).then((response: unknown) => {
-                obsConnected = true
-                return response
             })
         } catch (e) {
             return Promise.reject('Could not connect to OBS WebSocket server')
         }
     })
     ipcMain.handle('obs:disconnect', async (): Promise<void> => {
-        return await obs.disconnect().then(() => {
-            handleObsDisconnect()
-        })
+        return await obs.disconnect()
     })
     ipcMain.handle('obs:call', async (_event, ...args): Promise<void> => {
         // intercept OWN3D vendor requests

@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const outsideWarning: HTMLElement = document.querySelector('#outside-warning')
     const webviewContainer: HTMLElement = document.querySelector('#webview-container')
     const webview: Electron.WebviewTag = document.createElement('webview')
-    webview.setAttribute('src', `${hostname}/`)
+    webview.setAttribute('src', `${hostname}/dashboard/`)
     webview.setAttribute('class', 'h-full w-full')
     webview.setAttribute('allowpopups', '')
     // @ts-ignore
@@ -75,7 +75,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         if (url.hostname === hostname
             && !url.pathname.startsWith('/dashboard/')) {
-            // webview.loadURL(`https://${url.hostname}/dashboard/`)
+            webview.loadURL(`https://${url.hostname}/dashboard/`)
             console.log('redirecting to dashboard', {
                 url: url,
                 pathname: url.pathname,

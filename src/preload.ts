@@ -14,7 +14,7 @@ contextBridge.exposeInMainWorld('versions', {
 })
 
 contextBridge.exposeInMainWorld('electron', {
-    preload: () =>
+        preload: () =>
         ipcRenderer.invoke('preload'),
     needsDevTools: () =>
         ipcRenderer.invoke('needs-devtools'),

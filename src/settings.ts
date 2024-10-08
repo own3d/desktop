@@ -3,8 +3,6 @@ import { platform } from 'node:process'
 import * as fs from 'fs'
 import { Oauth2Token, Own3dCredentials, Settings } from './schema'
 import axios from 'axios'
-import { session } from 'electron'
-import CookiesSetDetails = Electron.CookiesSetDetails
 
 const defaults: Settings = {
     version: '1.1.0',
@@ -115,44 +113,6 @@ export class SettingsRepository {
 
     async setCredentials(credentials: Own3dCredentials) {
         this.settings.credentials = credentials
-        if (credentials) {
-            const {access_token, token_type, expires_in, expires_at} = this.settings.credentials
-            const {hostname} = new URL(this.session_domain)
-            const domain = `.${hostname}`
-            // expires_at is a string, but we need a UNIX timestamp
-            const expirationDate = new Date(expires_at).getTime() / 1000
-            const token = {
-                token: access_token,
-                tokenType: token_type,
-                expiresAt: expirationDate,
-            }
-            console.log('Setting credential cookies', {
-                user: this.settings.credentials.user,
-                sessionDomain: this.session_domain,
-                expirationDate,
-                domain,
-            })
-
-            await session.defaultSession.cookies.set({
-                url: this.session_domain,
-                name: 'oauth_access_token',
-                value: encodeURIComponent(JSON.stringify(token)),
-                expirationDate,
-                domain,
-            } as CookiesSetDetails)
-
-            await session.defaultSession.cookies.set({
-                url: this.session_domain,
-                name: 'oauth_user',
-                value: encodeURIComponent(JSON.stringify(this.settings.credentials.user)),
-                expirationDate,
-                domain,
-            } as CookiesSetDetails)
-        } else {
-            console.log('Removing credential cookies')
-            await session.defaultSession.cookies.remove(this.session_domain, 'oauth_access_token')
-            await session.defaultSession.cookies.remove(this.session_domain, 'oauth_user')
-        }
     }
 
     async setCredentialsFromToken(oauth2Token: Oauth2Token) {
