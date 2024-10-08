@@ -34,11 +34,10 @@ contextBridge.exposeInMainWorld('electron', {
             ipcRenderer.send('authenticate', accessToken),
         getDeviceId: () =>
             ipcRenderer.invoke('get-device-id'),
+        magicLogin: () =>
+            ipcRenderer.invoke('magic-login'),
     },
 
-    // deprecated
-    authenticate: (accessToken: unknown) =>
-        ipcRenderer.send('authenticate', accessToken),
     //
     toggleOverlay: () =>
         ipcRenderer.invoke('toggle-overlay'),

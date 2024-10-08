@@ -19,7 +19,7 @@ import { useContainer } from './composables/useContainer'
 import OBSWebSocket from 'obs-websocket-js'
 import { createMainWindow } from './window/mainWindow'
 import { createBrowserSourceWindow } from './window/browserSource'
-import {useRpcServer} from "./composables/useRpcServer";
+import { useRpcServer } from './composables/useRpcServer'
 
 export interface Argv {
     _: string[]
@@ -107,7 +107,7 @@ if (!gotTheLock) {
                 const appLaunchWatcher = new AppLaunchWatcher(settings)
                 appLaunchWatcher.watch(() => createWindowIfNotExists())
 
-                console.log('Settings initialized launching apps...', settings)
+                console.log('Settings initialized launching apps...')
                 createBrowserSourceWindow(settings)
                 createWindowIfNotExists()
             })
@@ -122,5 +122,6 @@ if (!gotTheLock) {
     registerAuthHandlers()
 
     // start json-rpc server
+    // noinspection JSIgnoredPromiseFromCall
     useRpcServer()
 }

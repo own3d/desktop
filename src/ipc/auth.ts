@@ -5,9 +5,11 @@ import { Button, useButton } from '../composables/useButton'
 import { SettingsRepository } from '../settings'
 import { useContainer } from '../composables/useContainer'
 import axios from 'axios'
+import { useOauth2 } from '../composables/useOauth2'
 
 export function registerAuthHandlers() {
     const {get} = useContainer()
+    const {redirect} = useOauth2()
     const settingsRepository = get(SettingsRepository)
     let authorization: Authorization
 
@@ -53,5 +55,20 @@ export function registerAuthHandlers() {
                 console.log('Error while authenticating:', e)
             }
         }
+    })
+
+    const isAuthorized = (url: string) => {
+        return [
+            'https://id.stream.tv/login',
+            'http://localhost:5173/',
+        ].includes(url)
+    }
+
+    ipcMain.handle('magic-login', async (event) => {
+        const origin = event.sender.getURL()
+        if (!isAuthorized(origin)) {
+            return Promise.reject(`The URL ${origin} is not authorized`)
+        }
+        return redirect()
     })
 }
