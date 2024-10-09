@@ -50,7 +50,7 @@
   "dependencies": {
     "@own3d/electron-types": "0.1.0-rc.4",
     "@types/electron-squirrel-startup": "^1.0.2",
-    "axios": "^1.6.8",
+    "axios": "^1.7.4",
     "boring": "^1.1.1",
     "defu": "^6.1.4",
     "electron-store": "^8.2.0",
@@ -59,7 +59,7 @@
     "json-rpc-2.0": "^1.7.0",
     "jsonwebtoken": "^9.0.2",
     "node-machine-id": "^1.1.12",
-    "obs-websocket-js": "^5.0.5",
+    "obs-websocket-js": "^5.0.6",
     "socket.io": "^4.8.0",
     "socket.io-client": "^4.7.5",
     "update-electron-app": "^3.0.0",
