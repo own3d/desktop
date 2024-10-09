@@ -82,6 +82,7 @@ const config: ForgeConfig = {
                 name: 'desktop'
             },
             prerelease: true,
+            generateReleaseNotes: true,
             tagPrefix: '',
         })
     ]
