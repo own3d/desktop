@@ -3,10 +3,9 @@ import fs from 'fs'
 import path from 'path'
 import ini from 'ini'
 import node_process from 'node:process'
-import {default as OBSWebSocket} from 'obs-websocket-js'
 import {createMainWindow} from './window/mainWindow'
 
-const {default: OBS} = require('obs-websocket-js')
+import { OBSWebSocket } from 'obs-websocket-js';
 
 const jsonPath = path.join('obs-studio', 'plugin_config', 'obs-websocket', 'config.json')
 const wellKnownJsonPaths = [
@@ -28,12 +27,11 @@ export function emit(event: any, ...args: any) {
     BrowserWindow.getAllWindows().forEach((win) => {
         if (win.isDestroyed()) return
         win.webContents.send(event, ...args)
-        // noinspection JSIgnoredPromiseFromCall
         win.webContents.executeJavaScript(`
             Array.from(document.querySelectorAll('webview')).forEach((webview) => {
                 webview.send('${event}', ...${JSON.stringify(args)});
             });
-        `);
+        `).catch(() => {});
     })
 }
 
@@ -103,7 +101,7 @@ function discoverObsWebsocketCredentialsOld(): OBSWebSocketConfig | undefined {
 }
 
 export function getPatchedOBSWebSocket(): OBSWebSocket {
-    const obs = new OBS()
+    const obs = new OBSWebSocket()
 
     // patching the emit function to forward events to the renderer process
     const _emit = obs.emit

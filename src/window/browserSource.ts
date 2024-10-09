@@ -1,5 +1,3 @@
-// @ts-ignore
-import Config from 'electron-config'
 import { useContainer } from '../composables/useContainer'
 import path from 'path'
 import { app, BrowserWindow, BrowserWindowConstructorOptions, globalShortcut } from 'electron'
