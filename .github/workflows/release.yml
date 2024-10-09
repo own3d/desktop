@@ -16,8 +16,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-      - name: Authenticate with GitHub Packages
-        run: echo "//npm.pkg.github.com/:_authToken=${{ secrets.GH_TOKEN }}" > ~/.npmrc
+      - name: Set up .npmrc
+        run: echo "$NPMRC" > .npmrc
       - name: Install dependencies
         run: yarn install
       - name: Publish app
