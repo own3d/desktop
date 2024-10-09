@@ -2,7 +2,7 @@
   "name": "own3d-desktop",
   "productName": "OWN3D Pro Desktop",
   "version": "2.3.0",
-  "description": "My Electron application description",
+  "description": "OWN3D Pro Desktop",
   "main": ".vite/build/main.js",
   "scripts": {
     "start": "electron-forge start",
@@ -46,7 +46,7 @@
     "name": "StreamTV Media GmbH",
     "email": "support@own3d.tv"
   },
-  "license": "MIT",
+  "license": "Apache-2.0",
   "dependencies": {
     "@own3d/electron-types": "0.1.0-rc.4",
     "@types/electron-squirrel-startup": "^1.0.2",
