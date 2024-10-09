@@ -24,8 +24,6 @@ jobs:
           node-version: 20
       - name: Set up .npmrc from NPMRC environment variable
         run: echo "$NPMRC" > ~/.npmrc
-      - name: Authenticate with GitHub Packages
-        run: yarn config set "//npm.pkg.github.com/:_authToken" "${{ secrets.GH_TOKEN }}"
       - name: Install dependencies
         run: yarn install
       - name: Publish app
