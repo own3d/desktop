@@ -48,7 +48,7 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@own3d/electron-types": "0.1.0-rc.3",
+    "@own3d/electron-types": "0.1.0-rc.4",
     "@types/electron-squirrel-startup": "^1.0.2",
     "axios": "^1.6.8",
     "boring": "^1.1.1",

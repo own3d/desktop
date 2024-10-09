@@ -682,10 +682,10 @@
     mkdirp "^1.0.4"
     rimraf "^3.0.2"
 
-"@own3d/electron-types@0.1.0-rc.3":
-  version "0.1.0-rc.3"
-  resolved "https://npm.pkg.github.com/download/@own3d/electron-types/0.1.0-rc.3/43249374f448ff6e2e125274ba7c41679dbf4d74#43249374f448ff6e2e125274ba7c41679dbf4d74"
-  integrity sha512-QH+RgUnOX8+jrx4wBnrGNdYPRHF3doJSvyhWxFUqtkHFVnBymVibFzfolP6XLmc0fhsnMloHH14ii9F4ZvZHeA==
+"@own3d/electron-types@0.1.0-rc.4":
+  version "0.1.0-rc.4"
+  resolved "https://npm.pkg.github.com/download/@own3d/electron-types/0.1.0-rc.4/b8aa655f6a9d3acf5c9a9d1ea43077613d106c48#b8aa655f6a9d3acf5c9a9d1ea43077613d106c48"
+  integrity sha512-rZJYXnEK2rmwzCRkL3d3oCYza9MiiUuknZvf6U6nkWTBQp2MnSAKc7GEnkbDNgYTSXX68GRMq7mWrAJvETWDJA==
 
 "@pkgjs/parseargs@^0.11.0":
   version "0.11.0"
