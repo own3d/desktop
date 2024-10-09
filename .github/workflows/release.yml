@@ -9,11 +9,10 @@ jobs:
 
     env:
       NPMRC: "//npm.pkg.github.com/:_authToken=${{ secrets.GH_TOKEN }}"
-      NPM_CONFIG_REGISTRY: "https://npm.pkg.github.com/"
 
     strategy:
       matrix:
-        os: [ macos-latest, ubuntu-latest, windows-latest ]
+        os: [ ubuntu-latest, windows-latest ]
 
     steps:
       - name: Github checkout
