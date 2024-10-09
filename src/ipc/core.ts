@@ -13,7 +13,7 @@ export function registerCoreHandlers() {
     const windows = get<Windows>('windows')
     const argv = get<Argv>('argv')
 
-    const hostname = !!argv.localhost ? 'http://localhost:3000' : (argv.hostname || 'https://www.own3d.pro');
+    const hostname = !!argv.localhost ? 'http://localhost:3000' : (argv.hostname || 'https://www.own3d.pro')
     settingsRepository.setSessionDomain(hostname)
 
     ipcMain.handle('games', async () => gameWatcher.getGames())
@@ -61,10 +61,11 @@ export function registerCoreHandlers() {
         const settings = settingsRepository.getSettings()
 
         if (settings.display) {
-            console.log('Display settings found, using display', settings.display)
-            windows.browserSource.setBounds(settings.display.bounds)
+            const {label, bounds} = settings.display
+            console.log('Display settings found, using following display:', {label, bounds})
+            windows.browserSource.setBounds(bounds)
         } else {
-            console.log('No display settings found, using default')
+            console.log('No display settings found, using default display')
             const display = screen.getDisplayNearestPoint({x: 0, y: 0})
             windows.browserSource.setBounds(display.bounds)
         }

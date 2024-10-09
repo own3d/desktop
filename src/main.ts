@@ -1,6 +1,4 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
-// @ts-ignore
-import Config from 'electron-config'
+import Store from 'electron-store'
 import electronSquirrelStartup from 'electron-squirrel-startup'
 import { app, BrowserWindow } from 'electron'
 import { updateElectronApp } from 'update-electron-app'
@@ -61,7 +59,7 @@ if (!gotTheLock) {
     bind(SettingsRepository, new SettingsRepository())
     bind(GameWatcher, new GameWatcher())
     bind(OBSWebSocket, getPatchedOBSWebSocket())
-    bind('config', new Config())
+    bind(Store, new Store())
     bind('windows', windows)
     bind('argv', argv)
 

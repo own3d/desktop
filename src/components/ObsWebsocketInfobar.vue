@@ -34,11 +34,7 @@ onMounted(async () => {
 
   try {
     await electron.obs.connect()
-  } catch (e) {
-    new Notification('Unable to connect to OBS Studio', {
-      body: e.message,
-    })
-  }
+  } catch (e) {}
 })
 
 onUnmounted(async () => {

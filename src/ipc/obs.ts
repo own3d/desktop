@@ -22,26 +22,23 @@ export function registerObsWebSocketHandlers() {
     })
 
     obs.on('ConnectionClosed', () => {
+        if (obsConnected) {
+            new Notification({
+                title: 'OBS Studio disconnected',
+                body: 'The connection to OBS Studio has been lost.',
+            }).show()
+        }
         obsConnected = false
-        new Notification({
-            title: 'OBS Studio disconnected',
-            body: 'The connection to OBS Studio has been lost.',
-        }).show()
     })
 
     obs.on('ConnectionError', () => {
-        new Notification({
-            title: 'OBS Studio connection error',
-            body: 'An error occurred while trying to connect to OBS Studio.',
-        }).show()
-    })
-
-    obs.on('Hello', () => {
-        console.log('Hello')
-    })
-
-    obs.on('Identified', () => {
-        console.log('Identified')
+        if (obsConnected) {
+            new Notification({
+                title: 'OBS Studio connection error',
+                body: 'An error occurred while trying to connect to OBS Studio.',
+            }).show()
+        }
+        obsConnected = false
     })
 
     const handleOwn3dVendorRequest = async (requestType: string, requestData: unknown) => {

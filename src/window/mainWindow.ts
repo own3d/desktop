@@ -1,13 +1,12 @@
-// @ts-ignore
-import Config from 'electron-config'
 import path from 'path'
+import Store from 'electron-store'
 import { BrowserWindow, BrowserWindowConstructorOptions, shell } from 'electron'
 import { Argv, Windows } from '../main'
 import { useContainer } from '../composables/useContainer'
 
 export function createMainWindow() {
     const {get} = useContainer()
-    const config = get<Config>('config')
+    const config = get(Store)
     const windows = get<Windows>('windows')
     const argv = get<Argv>('argv')
 

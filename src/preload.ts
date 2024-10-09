@@ -40,6 +40,10 @@ contextBridge.exposeInMainWorld('electron', {
             ipcRenderer.send('logout'),
     },
 
+    // deprecated
+    authenticate: (accessToken: unknown) =>
+        ipcRenderer.send('authenticate', accessToken),
+
     //
     toggleOverlay: () =>
         ipcRenderer.invoke('toggle-overlay'),

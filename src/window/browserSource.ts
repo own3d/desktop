@@ -1,5 +1,3 @@
-// @ts-ignore
-import Config from 'electron-config'
 import { useContainer } from '../composables/useContainer'
 import path from 'path'
 import { app, BrowserWindow, BrowserWindowConstructorOptions, globalShortcut } from 'electron'
@@ -41,11 +39,12 @@ export function createBrowserSourceWindow(
     } as BrowserWindowConstructorOptions
 
     if (settings.display) {
-        console.log('Display settings found, using display', settings.display)
-        options.x = settings.display.bounds.x
-        options.y = settings.display.bounds.y
-        options.width = settings.display.bounds.width
-        options.height = settings.display.bounds.height
+        const {label, bounds} = settings.display
+        console.log('Display settings found, using following display:', {label, bounds})
+        options.x = bounds.x
+        options.y = bounds.y
+        options.width = bounds.width
+        options.height = bounds.height
     }
 
     // Create the browser window.

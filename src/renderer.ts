@@ -62,6 +62,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         const inside = [
             'www.own3d.pro',
+            'store.own3d.pro',
             'api.own3d.pro',
             'id.stream.tv',
             'localhost',
