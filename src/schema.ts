@@ -3,20 +3,22 @@
  */
 export interface Own3dProUser {
     id: string
-    slug: string
     name: string
     avatar_url: string
+}
+
+export interface Oauth2Token {
+    token_type: string
+    expires_in: number
+    access_token: string
+    refresh_token: string | null
+    expires_at: string
 }
 
 /**
  * Oauth2 credential structure including user information
  */
-export interface Own3dCredentials {
-    access_token: string
-    token_type: string
-    expires_in: string
-    state: string
-    expires_at: string
+export interface Own3dCredentials extends Oauth2Token {
     user: Own3dProUser
 }
 

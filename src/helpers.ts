@@ -28,6 +28,12 @@ export function emit(event: any, ...args: any) {
     BrowserWindow.getAllWindows().forEach((win) => {
         if (win.isDestroyed()) return
         win.webContents.send(event, ...args)
+        // noinspection JSIgnoredPromiseFromCall
+        win.webContents.executeJavaScript(`
+            Array.from(document.querySelectorAll('webview')).forEach((webview) => {
+                webview.send('${event}', ...${JSON.stringify(args)});
+            });
+        `);
     })
 }
 
@@ -46,7 +52,10 @@ export function getAppData(): string {
  * Get the user's home directory
  */
 export function getHome(): string {
-    return process.env.HOME
+    if (process.env.HOME) {
+        return process.env.HOME;
+    }
+    return process.env.HOMEPATH;
 }
 
 /**
@@ -113,4 +122,37 @@ export function createWindowIfNotExists() {
     if (browserWindows.length === 0) {
         createMainWindow()
     }
+}
+
+function dec2hex(dec: any) {
+    return ('0' + dec.toString(16)).substr(-2)
+}
+
+export function generateRandomString() {
+    const array = new Uint32Array(56 / 2);
+    crypto.getRandomValues(array);
+    return Array.from(array, dec2hex).join('');
+}
+
+function sha256(plain: any) {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(plain);
+    return crypto.subtle.digest('SHA-256', data);
+}
+
+function base64urlencode(a: any) {
+    let str = "";
+    const bytes = new Uint8Array(a);
+    const len = bytes.byteLength;
+    for (let i = 0; i < len; i++) {
+        str += String.fromCharCode(bytes[i]);
+    }
+    return btoa(str)
+        .replace(/\+/g, "-")
+        .replace(/\//g, "_")
+        .replace(/=+$/, "");
+}
+
+export async function getChallengeFromVerifier(v: any) {
+    return base64urlencode(await sha256(v));
 }

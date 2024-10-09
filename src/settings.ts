@@ -1,7 +1,8 @@
 import defu from 'defu'
 import { platform } from 'node:process'
 import * as fs from 'fs'
-import { Own3dCredentials, Settings } from './schema'
+import { Oauth2Token, Own3dCredentials, Settings } from './schema'
+import axios from 'axios'
 
 const defaults: Settings = {
     version: '1.1.0',
@@ -15,10 +16,15 @@ const defaults: Settings = {
     },
     display: null,
     room: null,
+    obs: {
+        url: 'auto',
+        password: 'auto',
+    }
 }
 
 export class SettingsRepository {
     private settings: Settings | null
+    private session_domain: string
     private readonly path: string
     private readonly listeners: Array<(settings: Settings) => void>
     private readonly directory: string
@@ -33,10 +39,10 @@ export class SettingsRepository {
             fs.mkdirSync(this.directory)
         }
 
-        this.path = `${this.directory}/desktop-overlay.json`
+        this.path = `${this.directory}/desktop.json`
     }
 
-    async restore(): Promise<Settings> {
+    async restore(checkCredentials: false): Promise<Settings> {
         // load settings from path
         // using node's fs module if file does not exist, create it with defaults
         // if file exists, load it into this.settings
@@ -58,6 +64,14 @@ export class SettingsRepository {
             }
         } catch (e) {
             this.settings = defaults
+        }
+
+        if (checkCredentials) {
+            if (this.settings.credentials) {
+                await this.setCredentialsFromToken(this.settings.credentials)
+            } else {
+                console.log('No credentials found')
+            }
         }
 
         await this.save()
@@ -97,8 +111,32 @@ export class SettingsRepository {
         this.listeners.push(callback)
     }
 
-    setCredentials(credentials: Own3dCredentials) {
+    setSessionDomain(hostname: string) {
+        this.session_domain = hostname
+    }
+
+    async setCredentials(credentials: Own3dCredentials) {
         this.settings.credentials = credentials
+    }
+
+    async setCredentialsFromToken(oauth2Token: Oauth2Token) {
+        const {access_token, token_type} = oauth2Token
+        try {
+            const {data} = await axios.get('https://id.stream.tv/api/users', {
+                headers: {
+                    Authorization: `${token_type} ${access_token}`,
+                },
+            })
+            await this.setCredentials({
+                ...oauth2Token,
+                user: data,
+            })
+        } catch (e) {
+            console.error('User data request failed', e)
+            this.settings.credentials = null
+        } finally {
+            await this.save()
+        }
     }
 
     setRoom(room: string) {
@@ -114,6 +152,10 @@ export class SettingsRepository {
             if (settings[key] === null && this.settings[key]) this.settings[key] = null
         }
         await this.save()
+    }
+
+    async checkCredentials(): Promise<boolean> {
+        return !!this.settings.credentials
     }
 
     async logout(): Promise<void> {

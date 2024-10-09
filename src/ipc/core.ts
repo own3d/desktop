@@ -13,13 +13,14 @@ export function registerCoreHandlers() {
     const windows = get<Windows>('windows')
     const argv = get<Argv>('argv')
 
+    const hostname = !!argv.localhost ? 'http://localhost:3000' : (argv.hostname || 'https://www.own3d.pro');
+    settingsRepository.setSessionDomain(hostname)
+
     ipcMain.handle('games', async () => gameWatcher.getGames())
     ipcMain.handle('version', async () => app.getVersion())
     ipcMain.handle('settings', async () => settingsRepository.getSettings())
     ipcMain.handle('needs-devtools', async () => !!argv.devtools)
-    ipcMain.handle('hostname', async () => {
-        return !!argv.localhost ? 'http://localhost:3000' : (argv.hostname || 'https://www.own3d.pro')
-    })
+    ipcMain.handle('hostname', async () => hostname)
     ipcMain.handle('preload', function () {
         return path.join(__dirname, 'preload.js')
     })

@@ -9,20 +9,29 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { onMounted, onUnmounted, ref } from 'vue'
 
 const connected = ref(false)
 
-setInterval(async () => {
-  connected.value = await electron.obs.connected()
-}, 1000)
+const onClosed = async () => {
+  connected.value = false
+}
 
+const onOpened = async () => {
+  connected.value = true
+}
+
+// reconnect handler
 setInterval(async () => {
   const connected = await electron.obs.connected()
   if (!connected) await electron.obs.connect()
 }, 5000)
 
 onMounted(async () => {
+  electron.obs.on('ConnectionOpened', onOpened)
+  electron.obs.on('ConnectionClosed', onClosed)
+  connected.value = await electron.obs.connected()
+
   try {
     await electron.obs.connect()
   } catch (e) {
@@ -30,5 +39,10 @@ onMounted(async () => {
       body: e.message,
     })
   }
+})
+
+onUnmounted(async () => {
+  electron.obs.off('ConnectionOpened', onOpened)
+  electron.obs.off('ConnectionClosed', onClosed)
 })
 </script>
