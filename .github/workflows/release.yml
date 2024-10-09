@@ -6,9 +6,15 @@ on:
 jobs:
   build:
     runs-on: ${{ matrix.os }}
+
+    env:
+      NPMRC: "//npm.pkg.github.com/:_authToken=${{ secrets.GH_TOKEN }}"
+      NPM_CONFIG_REGISTRY: "https://npm.pkg.github.com/"
+
     strategy:
       matrix:
         os: [ macos-latest, ubuntu-latest, windows-latest ]
+
     steps:
       - name: Github checkout
         uses: actions/checkout@v4
@@ -16,6 +22,10 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
+      - name: Set up .npmrc from NPMRC environment variable
+        run: echo "$NPMRC" > ~/.npmrc
+      - name: Authenticate with GitHub Packages
+        run: yarn config set "//npm.pkg.github.com/:_authToken" "${{ secrets.NPM_TOKEN }}"
       - name: Install dependencies
         run: yarn install
       - name: Publish app
