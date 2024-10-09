@@ -19,7 +19,7 @@ jobs:
         with:
           node-version: 20
       - name: Set up .npmrc from NPMRC environment variable
-        run: echo "$NPMRC" > .npmrc
+        run: echo "${{ secrets.NPMRC }}" > .npmrc
       - name: Install dependencies
         run: npm install
       - name: Publish app
