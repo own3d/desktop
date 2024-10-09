@@ -19,10 +19,10 @@ jobs:
         with:
           node-version: 20
       - name: Set up .npmrc from NPMRC environment variable
-        run: echo "$NPMRC" > ~/.npmrc
+        run: echo "//registry.npmjs.org/:_authToken=$GH_TOKEN" > ~/.npmrc
       - name: Install dependencies
-        run: npm install
+        run: yarn install
       - name: Publish app
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-        run: npm run publish
+        run: yarn run publish
