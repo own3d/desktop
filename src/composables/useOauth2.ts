@@ -44,7 +44,7 @@ export function useOauth2() {
             response_type: 'code',
             scope: 'user:read connections',
             state: btoa(JSON.stringify({state: oauth2.state, port: 41466})),
-            prompt: 'none',
+            prompt: '',
         })
 
         params.set('code_challenge', await getChallengeFromVerifier(oauth2.oauth_code_verifier))
@@ -56,7 +56,7 @@ export function useOauth2() {
         // wait until the user is redirected back
         return new Promise((resolve, reject) => {
             console.log('Waiting for response...')
-            // wait max 10 seconds
+            // wait max 2 minutes
             const interval = setInterval(() => {
                 if (oauth2.response) {
                     clearInterval(interval)
@@ -70,7 +70,7 @@ export function useOauth2() {
             setTimeout(() => {
                 clearInterval(interval)
                 reject('Timeout')
-            }, 10000)
+            }, 120000)
         }) as Promise<AccessTokenResponse>
     }
 

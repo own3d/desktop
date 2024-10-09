@@ -1,4 +1,4 @@
-import { ipcMain } from 'electron'
+import electron, { ipcMain } from 'electron'
 import { Authorization } from '../schema'
 import { io } from 'socket.io-client'
 import { Button, useButton } from '../composables/useButton'
@@ -6,10 +6,12 @@ import { SettingsRepository } from '../settings'
 import { useContainer } from '../composables/useContainer'
 import axios from 'axios'
 import { useOauth2 } from '../composables/useOauth2'
+import { Windows } from '../main'
 
 export function registerAuthHandlers() {
     const {get} = useContainer()
     const {redirect} = useOauth2()
+    const windows = get<Windows>('windows')
     const settingsRepository = get(SettingsRepository)
     let authorization: Authorization
 
@@ -70,5 +72,14 @@ export function registerAuthHandlers() {
             return Promise.reject(`The URL ${origin} is not authorized`)
         }
         return redirect()
+    })
+
+    ipcMain.on('logout', async () => {
+        await settingsRepository.logout()
+        authorization = null
+        await electron.session.defaultSession.clearStorageData();
+        await electron.session.defaultSession.clearCache();
+        windows.mainWindow.reload();
+        windows.browserSource.reload();
     })
 }

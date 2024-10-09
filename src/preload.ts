@@ -36,6 +36,8 @@ contextBridge.exposeInMainWorld('electron', {
             ipcRenderer.invoke('get-device-id'),
         magicLogin: () =>
             ipcRenderer.invoke('magic-login'),
+        logout: () =>
+            ipcRenderer.send('logout'),
     },
 
     //
