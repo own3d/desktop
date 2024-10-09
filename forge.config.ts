@@ -81,7 +81,8 @@ const config: ForgeConfig = {
                 owner: 'own3d',
                 name: 'desktop'
             },
-            prerelease: true
+            prerelease: true,
+            tagPrefix: '',
         })
     ]
 };
