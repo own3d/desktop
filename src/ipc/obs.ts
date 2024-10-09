@@ -41,14 +41,6 @@ export function registerObsWebSocketHandlers() {
         obsConnected = false
     })
 
-    obs.on('Hello', () => {
-        console.log('Hello')
-    })
-
-    obs.on('Identified', () => {
-        console.log('Identified')
-    })
-
     const handleOwn3dVendorRequest = async (requestType: string, requestData: unknown) => {
         console.log('Own3d vendor request:', requestType, requestData)
 
