@@ -64,7 +64,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             'www.own3d.pro',
             'store.own3d.pro',
             'api.own3d.pro',
+            'api.staging.own3d.pro',
             'id.stream.tv',
+            'develop--pro-frontend.netlify.app',
+            'id-canary.ingress.hel1.k8s.stream.tv',
             'localhost',
         ].includes(url.hostname)
 
