@@ -21,7 +21,7 @@ import { useRpcServer } from './composables/useRpcServer'
 
 export interface Argv {
     _: string[]
-    devtools?: boolean
+    devtools?: string | boolean
     localhost?: boolean
     hostname?: string
 }

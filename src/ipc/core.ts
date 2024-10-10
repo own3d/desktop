@@ -19,7 +19,7 @@ export function registerCoreHandlers() {
     ipcMain.handle('games', async () => gameWatcher.getGames())
     ipcMain.handle('version', async () => app.getVersion())
     ipcMain.handle('settings', async () => settingsRepository.getSettings())
-    ipcMain.handle('needs-devtools', async () => !!argv.devtools)
+    ipcMain.handle('needs-devtools', async () => argv.devtools && ['all', true].includes(argv.devtools))
     ipcMain.handle('hostname', async () => hostname)
     ipcMain.handle('preload', function () {
         return path.join(__dirname, 'preload.js')
