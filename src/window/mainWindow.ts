@@ -40,7 +40,7 @@ export function createMainWindow() {
     }
 
     // Open the DevTools.
-    if (argv.devtools) {
+    if (argv.devtools && ['all', 'main'].includes(argv.devtools)) {
         windows.mainWindow.webContents.openDevTools()
     }
 

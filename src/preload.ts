@@ -7,10 +7,13 @@ import { RequestBatchOptions, RequestBatchRequest, ResponseMessage } from 'obs-w
 import IpcRendererEvent = Electron.IpcRendererEvent
 import { InstallProgress, SoftwareName } from './composables/useSoftware'
 
+import packageJson from '../package.json'
+
 contextBridge.exposeInMainWorld('versions', {
     node: () => process.versions.node,
     chrome: () => process.versions.chrome,
     electron: () => process.versions.electron,
+    desktop: () => packageJson.version,
 })
 
 contextBridge.exposeInMainWorld('electron', {
