@@ -61,6 +61,7 @@ export function registerAuthHandlers() {
 
     const isAuthorized = (url: string) => {
         return [
+            'https://id-canary.ingress.hel1.k8s.stream.tv/login',
             'https://id.stream.tv/login',
             'http://localhost:5173/',
         ].includes(url)
