@@ -16,7 +16,10 @@
         <button onclick="electron.desktop.maximizeWindow()"
                 tabindex="-1"
                 class="bg-title-bar hover:bg-title-bar-hover text-zinc-400 px-4">
-          <i class="fa-light fa-fw fa-square"></i>
+          <i :class="['fa-light fa-fw', {
+            'fa-square': !isWindowMaximized,
+            'fa-clone': isWindowMaximized,
+          }]"></i>
         </button>
         <button onclick="electron.desktop.closeWindow()"
                 tabindex="-1"
@@ -52,4 +55,10 @@
 
 <script setup lang="ts">
 import ObsWebsocketInfobar from '../components/ObsWebsocketInfobar.vue'
+import { ref } from 'vue'
+
+const isWindowMaximized = ref(false)
+setInterval(async () => {
+  isWindowMaximized.value = await electron.desktop.isMaximized()
+}, 100)
 </script>

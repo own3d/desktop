@@ -28,6 +28,10 @@ export function registerDesktopHandlers() {
         app.quit()
     })
 
+    ipcMain.handle('is-maximized', (): boolean => {
+        return windows.mainWindow.isMaximized()
+    })
+
     ipcMain.handle('get-device-id', async (): Promise<string> => {
         return await getDeviceId()
     })
