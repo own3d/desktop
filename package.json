@@ -1,7 +1,7 @@
 {
   "name": "own3d-desktop",
   "productName": "OWN3D Pro Desktop",
-  "version": "2.4.0",
+  "version": "2.5.0",
   "description": "OWN3D Pro Desktop",
   "main": ".vite/build/main.js",
   "scripts": {
@@ -48,13 +48,13 @@
   },
   "license": "Apache-2.0",
   "dependencies": {
-    "@own3d/electron-types": "0.1.0-rc.4",
+    "@own3d/electron-types": "0.1.0-rc.5",
     "@types/electron-squirrel-startup": "^1.0.2",
     "axios": "^1.7.4",
     "boring": "^1.1.1",
     "defu": "^6.1.4",
-    "electron-store": "^8.2.0",
     "electron-squirrel-startup": "^1.0.0",
+    "electron-store": "^8.2.0",
     "ini": "^4.1.3",
     "json-rpc-2.0": "^1.7.0",
     "jsonwebtoken": "^9.0.2",
