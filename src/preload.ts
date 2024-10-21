@@ -1,7 +1,7 @@
 // See the Electron documentation for details on how to use preload scripts:
 // https://www.electronjs.org/docs/latest/tutorial/process-model#preload-scripts
 
-import { contextBridge, ipcRenderer } from 'electron'
+import electron, { contextBridge, ipcRenderer } from 'electron'
 import { Settings, VerifiedGame } from './schema'
 import { RequestBatchOptions, RequestBatchRequest, ResponseMessage } from 'obs-websocket-js'
 import IpcRendererEvent = Electron.IpcRendererEvent
@@ -31,6 +31,8 @@ contextBridge.exposeInMainWorld('electron', {
             ipcRenderer.send('minimize-window'),
         maximizeWindow: () =>
             ipcRenderer.send('maximize-window'),
+        isMaximized: () =>
+            ipcRenderer.invoke('is-maximized'),
         quit: () =>
             ipcRenderer.send('quit'),
         authenticate: (accessToken: unknown) =>
@@ -89,6 +91,10 @@ contextBridge.exposeInMainWorld('electron', {
             ipcRenderer.invoke('obs:call', requestType, requestData),
         callBatch: (requests: RequestBatchRequest[], options?: RequestBatchOptions): Promise<ResponseMessage[]> =>
             ipcRenderer.invoke('obs:call-batch', requests, options),
+        enableWebSocketServer: (options): Promise<void> =>
+            ipcRenderer.invoke("obs:enable-websocket-server", options),
+        isWebSocketServerEnabled: (): Promise<boolean> =>
+            ipcRenderer.invoke("obs:is-websocket-server-enabled"),
         on: (event: string, listener: (event: IpcRendererEvent, ...args: any[]) => void) =>
             ipcRenderer.on(`obs:${event}`, listener),
         once: (event: string, listener: (event: IpcRendererEvent, ...args: any[]) => void) =>

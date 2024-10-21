@@ -1,5 +1,5 @@
 import { ipcMain, Notification } from 'electron'
-import { discoverObsWebsocketCredentials, getAppData } from '../helpers'
+import { discoverObsWebsocketCredentials, getAppData, setObsWebsocketCredentials } from '../helpers'
 import OBSWebSocket, { EventSubscription } from 'obs-websocket-js'
 import { SettingsRepository } from '../settings'
 import { useContainer } from '../composables/useContainer'
@@ -123,6 +123,11 @@ export function registerObsWebSocketHandlers() {
                 sceneCollectionName: currentSceneCollectionName,
             })
         }
+
+        // Step 5: Set the scene transition
+        return obs.call('SetCurrentSceneTransition', {
+            transitionName: requestData.name,
+        })
     }
 
     ipcMain.handle('obs:credentials', async (_event, ...args): Promise<void> => {
@@ -145,7 +150,7 @@ export function registerObsWebSocketHandlers() {
             if (!credentials) {
                 return Promise.reject('Could not discover OBS WebSocket credentials')
             }
-            const {ServerEnabled, ServerPort, ServerPassword} = credentials
+            const {ServerEnabled, ServerPort, ServerPassword} = credentials.config
             if (!ServerEnabled) {
                 return Promise.reject('OBS WebSocket server not enabled')
             }
@@ -188,5 +193,22 @@ export function registerObsWebSocketHandlers() {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         return await obs.callBatch(...args)
+    })
+    ipcMain.handle('obs:enable-websocket-server', async (_event, ...args): Promise<void> => {
+        const options = args[0] || {}
+        const credentials = discoverObsWebsocketCredentials()
+        if (!credentials) {
+            return Promise.reject('Could not discover OBS WebSocket credentials')
+        }
+        credentials.config.ServerEnabled = true
+        setObsWebsocketCredentials(credentials)
+        return true
+    })
+    ipcMain.handle('obs:is-websocket-server-enabled', async (): Promise<boolean> => {
+        const credentials = discoverObsWebsocketCredentials()
+        if (!credentials) {
+            return Promise.reject('Could not discover OBS WebSocket credentials')
+        }
+        return !!credentials.config.ServerEnabled
     })
 }
