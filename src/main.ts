@@ -31,6 +31,11 @@ export interface Windows {
     browserSource: BrowserWindow
 }
 
+// Handle uncaught exceptions
+process.on('uncaughtException', (error) => {
+    console.error('Uncaught exception in renderer process:', error);
+});
+
 /*
  * You can start the app with the following command:
  * yarn start -- -- --devtools --localhost

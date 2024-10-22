@@ -36,8 +36,7 @@ export function emit(event: any, ...args: any) {
             Array.from(document.querySelectorAll('webview')).forEach((webview) => {
                 webview.send('${event}', ...${JSON.stringify(args)});
             });
-        `).catch(() => {
-        })
+        `).catch(() => {})
     })
 }
 
