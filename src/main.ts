@@ -33,8 +33,8 @@ export interface Windows {
 
 // Handle uncaught exceptions
 process.on('uncaughtException', (error) => {
-    console.error('Uncaught exception in renderer process:', error);
-});
+    console.error('Uncaught exception in renderer process:', error)
+})
 
 /*
  * You can start the app with the following command:
@@ -72,6 +72,9 @@ if (!gotTheLock) {
     get(SettingsRepository).watch((settings: Settings) => emit('settings', settings))
     // noinspection JSIgnoredPromiseFromCall
     get(GameWatcher).watch((verifiedGames: Array<VerifiedGame>) => emit('games', verifiedGames))
+
+    // Disable autoplay policy
+    app.commandLine.appendSwitch('autoplay-policy', 'no-user-gesture-required')
 
     app.on('second-instance', () => {
         // Someone tried to run a second instance, we should focus our window.
