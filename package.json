@@ -1,7 +1,7 @@
 {
   "name": "own3d-desktop",
   "productName": "OWN3D Pro Desktop",
-  "version": "2.5.2",
+  "version": "2.5.3",
   "description": "OWN3D Pro Desktop",
   "main": ".vite/build/main.js",
   "scripts": {
