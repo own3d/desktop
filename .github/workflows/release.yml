@@ -22,7 +22,7 @@ jobs:
         run: echo "${{ secrets.NPMRC }}" > .npmrc
       - name: Install dependencies
         run: yarn install
-#      - name: Publish app
-#        env:
-#          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-#        run: yarn run publish
+      - name: Publish app
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: yarn run publish
