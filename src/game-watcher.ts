@@ -1,6 +1,7 @@
 import { exec, ExecFileException } from 'child_process'
-import {VerifiedGame} from "./schema"
+import { VerifiedGame } from './schema'
 import axios, { AxiosResponse } from 'axios'
+import log from 'electron-log/main'
 
 export class GameWatcher {
     private interval: ReturnType<typeof setInterval>
@@ -54,14 +55,14 @@ export class GameWatcher {
         const command = process.platform === 'win32' ? 'tasklist' : 'ps aux'
         exec(command, (err: ExecFileException | null, stdout: string) => {
             if (err) {
-                console.error(err)
+                log.error(err)
                 return
             }
 
             this.runningGames = verifiedGames.filter(
                 (verifiedGame: VerifiedGame) => verifiedGame.executables.filter(
-                    x => stdout.includes(x)
-                ).length > 0
+                    x => stdout.includes(x),
+                ).length > 0,
             )
 
             callback(this.runningGames)

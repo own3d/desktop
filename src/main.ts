@@ -1,10 +1,11 @@
 import Store from 'electron-store'
+import log from 'electron-log/main'
 import electronSquirrelStartup from 'electron-squirrel-startup'
 import { app, BrowserWindow } from 'electron'
 import { updateElectronApp } from 'update-electron-app'
 import { Settings, VerifiedGame } from './schema'
 import { GameWatcher } from './game-watcher'
-import { createWindowIfNotExists, emit, getPatchedOBSWebSocket } from './helpers'
+import { createWindowIfNotExists, emit, getAppData, getPatchedOBSWebSocket } from './helpers'
 import { SettingsRepository } from './settings'
 import { AppLaunchWatcher } from './watch'
 import { registerObsWebSocketHandlers } from './ipc/obs'
@@ -18,6 +19,7 @@ import OBSWebSocket from 'obs-websocket-js'
 import { createMainWindow } from './window/mainWindow'
 import { createBrowserSourceWindow } from './window/browserSource'
 import { useRpcServer } from './composables/useRpcServer'
+import path from 'path'
 
 export interface Argv {
     _: string[]
@@ -33,7 +35,7 @@ export interface Windows {
 
 // Handle uncaught exceptions
 process.on('uncaughtException', (error) => {
-    console.error('Uncaught exception in renderer process:', error)
+    log.error('Uncaught exception in renderer process:', error)
 })
 
 /*
@@ -41,6 +43,11 @@ process.on('uncaughtException', (error) => {
  * yarn start -- -- --devtools --localhost
  */
 const argv: Argv = require('boring')({})
+
+log.initialize()
+const logFilePath = path.join(getAppData(), 'own3d', 'logs', 'desktop.log')
+console.log('Log file path:', logFilePath)
+log.transports.file.resolvePathFn = () => logFilePath;
 
 updateElectronApp()
 
@@ -113,7 +120,7 @@ if (!gotTheLock) {
                 const appLaunchWatcher = new AppLaunchWatcher(settings)
                 appLaunchWatcher.watch(() => createWindowIfNotExists())
 
-                console.log('Settings initialized launching apps...')
+                log.log('Settings initialized launching apps...')
                 createBrowserSourceWindow(settings)
                 createWindowIfNotExists()
             })

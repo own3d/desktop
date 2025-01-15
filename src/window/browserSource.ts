@@ -3,6 +3,7 @@ import path from 'path'
 import { app, BrowserWindow, BrowserWindowConstructorOptions, globalShortcut } from 'electron'
 import { Windows } from '../main'
 import { Settings } from '../schema'
+import log from 'electron-log/main'
 
 export function createBrowserSourceWindow(
     settings: Settings,
@@ -40,7 +41,7 @@ export function createBrowserSourceWindow(
 
     if (settings.display) {
         const {label, bounds} = settings.display
-        console.log('Display settings found, using following display:', {label, bounds})
+        log.log('Display settings found, using following display:', {label, bounds})
         options.x = bounds.x
         options.y = bounds.y
         options.width = bounds.width
@@ -93,16 +94,17 @@ export function createBrowserSourceWindow(
     // })
 
     if (settings.overlay_disabled) {
+        log.log('Overlay is disabled, minimizing browser source')
         windows.browserSource.minimize()
     }
 
     // capture all console.log from the browser source and forward them to the main process
     windows.browserSource.webContents.on('console-message', (_event, _level, message) => {
-        console.log('BrowserSource:', message)
+        log.log('BrowserSource:', message)
     })
 
     const forwardMouseEvents = (lock: boolean, forwarding: boolean) => {
-        console.log('forwardMouseEvents',
+        log.log('forwardMouseEvents',
             lock ? 'Locked' : 'Unlocked',
             forwarding ? 'Forward' : 'Not forwarding',
         )

@@ -2,6 +2,7 @@ import { app, ipcMain } from 'electron'
 import { useDevice } from '../composables/useDevice'
 import { Argv, Windows } from '../main'
 import { useContainer } from '../composables/useContainer'
+import log from 'electron-log/main'
 
 export function registerDesktopHandlers() {
     const {get} = useContainer()
@@ -13,17 +14,17 @@ export function registerDesktopHandlers() {
     })
 
     ipcMain.on('maximize-window', () => {
-        console.log('maximize-window')
+        log.log('maximize-window')
         windows.mainWindow.isMaximized() ? windows.mainWindow.unmaximize() : windows.mainWindow.maximize()
     })
 
     ipcMain.on('minimize-window', () => {
-        console.log('minimize-window')
+        log.log('minimize-window')
         windows.mainWindow.minimize()
     })
 
     ipcMain.on('close-window', () => {
-        console.log('close-window')
+        log.log('close-window')
         windows.mainWindow.close()
         app.quit()
     })

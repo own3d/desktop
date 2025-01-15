@@ -3,6 +3,7 @@ import { platform } from 'node:process'
 import * as fs from 'fs'
 import { Oauth2Token, Own3dCredentials, Settings } from './schema'
 import axios from 'axios'
+import log from 'electron-log/main'
 
 const defaults: Settings = {
     version: '1.1.0',
@@ -35,7 +36,7 @@ export class SettingsRepository {
         this.directory = this.appdata('/own3d')
 
         if (!fs.existsSync(this.directory)) {
-            console.log('Creating directory', this.directory)
+            log.log('Creating directory', this.directory)
             fs.mkdirSync(this.directory)
         }
 
@@ -54,7 +55,7 @@ export class SettingsRepository {
                 const settings = JSON.parse(data) as Settings
 
                 if (settings.version !== defaults.version) {
-                    console.log('Settings version mismatch, resetting to defaults')
+                    log.log('Settings version mismatch, resetting to defaults')
                     this.settings = defaults
                 } else {
                     this.settings = defu(settings, defaults)
@@ -70,7 +71,7 @@ export class SettingsRepository {
             if (this.settings.credentials) {
                 await this.setCredentialsFromToken(this.settings.credentials)
             } else {
-                console.log('No credentials found')
+                log.log('No credentials found')
             }
         }
 
@@ -132,7 +133,7 @@ export class SettingsRepository {
                 user: data,
             })
         } catch (e) {
-            console.error('User data request failed', e)
+            log.error('User data request failed', e)
             this.settings.credentials = null
         } finally {
             await this.save()

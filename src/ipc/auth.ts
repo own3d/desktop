@@ -7,6 +7,7 @@ import { useContainer } from '../composables/useContainer'
 import axios from 'axios'
 import { useOauth2 } from '../composables/useOauth2'
 import { Windows } from '../main'
+import log from 'electron-log/main';
 
 export function registerAuthHandlers() {
     const {get} = useContainer()
@@ -16,7 +17,7 @@ export function registerAuthHandlers() {
     let authorization: Authorization
 
     const handleAuthenticated = async (authorization: Authorization) => {
-        console.log('Authenticated:', {
+        log.log('Authenticated:', {
             name: authorization.data.name,
             id: authorization.data.id,
         })
@@ -24,7 +25,7 @@ export function registerAuthHandlers() {
         await settingsRepository.commitSettings({
             room: `90a951d1-ea50-4fda-8c4d-275b81f7d219.own3d.${authorization.data.id}`,
         })
-        console.log(`Starting socket client for ${authorization.data.name}...`)
+        log.log(`Starting socket client for ${authorization.data.name}...`)
 
         // Connect to the socket
         const socket = io('https://socket-hel1-1.own3d.dev', {
@@ -36,13 +37,13 @@ export function registerAuthHandlers() {
 
         // Join a room for the current user
         socket.on('connect', () => {
-            console.log(`Connected to socket server, id: ${socket.id}`)
+            log.log(`Connected to socket server, id: ${socket.id}`)
             socket.emit('auth', authorization.data.jwt_tokens.socket)
         })
 
         // Listen for events
         socket.on('button-click', (button: Button) => {
-            console.log('Got click event:', button)
+            log.log('Got click event:', button)
             useButton(button)
         })
     }
@@ -54,7 +55,7 @@ export function registerAuthHandlers() {
             try {
                 await handleAuthenticated(authorization)
             } catch (e) {
-                console.log('Error while authenticating:', e)
+                log.log('Error while authenticating:', e)
             }
         }
     })

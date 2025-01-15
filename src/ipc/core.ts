@@ -5,6 +5,7 @@ import { GameWatcher } from '../game-watcher'
 import { Argv, Windows } from '../main'
 import { useContainer } from '../composables/useContainer'
 import IpcMainInvokeEvent = Electron.IpcMainInvokeEvent
+import log from 'electron-log/main'
 
 export function registerCoreHandlers() {
     const {get} = useContainer()
@@ -62,10 +63,10 @@ export function registerCoreHandlers() {
 
         if (settings.display) {
             const {label, bounds} = settings.display
-            console.log('Display settings found, using following display:', {label, bounds})
+            log.log('Display settings found, using following display:', {label, bounds})
             windows.browserSource.setBounds(bounds)
         } else {
-            console.log('No display settings found, using default display')
+            log.log('No display settings found, using default display')
             const display = screen.getDisplayNearestPoint({x: 0, y: 0})
             windows.browserSource.setBounds(display.bounds)
         }
