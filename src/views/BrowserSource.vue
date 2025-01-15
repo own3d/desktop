@@ -2,7 +2,6 @@
   <div>
     <iframe
         v-show="room"
-        :src="src"
         ref="iframe"
         sandbox="allow-forms allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"
         allow="encrypted-media"
@@ -10,7 +9,7 @@
         frameborder="0"
     />
     <div class="iframe-container">
-      <div ref="interact" id="interact"/>
+      <div ref="interact" id="interact" />
       <div ref="text" id="text">
         ✨ Press Ctrl+Shift+O to exit the OWN3D overlay
       </div>
@@ -25,18 +24,7 @@ export default {
       hovered: false,
       room: false,
       settings: null,
-    };
-  },
-  computed: {
-    src() {
-      const params = new URLSearchParams({
-        language: "en",
-        platform: "desktop",
-        environment: "production",
-      });
-
-      return `https://browser-source.ext-own3d.tv/latest/effects.html?${params.toString()}#room=${this.room}`;
-    },
+    }
   },
   mounted() {
     // get initial games
@@ -45,41 +33,52 @@ export default {
         .then(this.settingsChanged)
         .catch(err => console.error(err))
 
-    this.$refs.iframe.addEventListener("load", () => {
+    this.$refs.iframe.addEventListener('load', () => {
       console.log('iframe loaded')
-      this.emitVolume();
-    });
+      this.emitVolume()
+    })
 
-    this.$refs.interact.addEventListener("mouseenter", () => {
-      if (this.hovered) return;
-      this.hovered = true;
-      this.$refs.text.style.opacity = "70%";
+    this.$refs.interact.addEventListener('mouseenter', () => {
+      if (this.hovered) return
+      this.hovered = true
+      this.$refs.text.style.opacity = '70%'
 
       setTimeout(() => {
-        this.$refs.text.style.opacity = "0";
-        this.hovered = false;
-      }, 2500);
-    });
+        this.$refs.text.style.opacity = '0'
+        this.hovered = false
+      }, 2500)
+    })
   },
 
   methods: {
     settingsChanged(settings) {
-      console.log('Sending Room to Source', this.room)
-      this.settings = settings;
+      console.log('Sending Room to Source... Last setting was:', this.room)
+      this.settings = settings
       if (settings.room && settings.room !== this.room) {
-        console.log("Room changed", settings.room)
-        this.room = settings.room;
+        console.log('Room changed', settings.room)
+        this.room = settings.room
+        this.$refs.iframe.src = this.src()
       }
-      this.emitVolume();
+      this.emitVolume()
+    },
+    src() {
+      const params = new URLSearchParams({
+        language: 'en',
+        platform: 'desktop',
+        environment: 'production',
+      })
+
+      return `https://browser-source.ext-own3d.tv/latest/effects.html?${params.toString()}#room=${this.room}`
     },
     // emit volume to iframe
     emitVolume() {
+      console.log('Emitting volume to iframe', this.src())
       this.$refs.iframe.contentWindow.postMessage({
-        type: "muted",
+        type: 'muted',
         muted: this.settings.overlay_muted,
-      }, "*");
+      }, '*')
     },
-  }
+  },
 }
 </script>
 
