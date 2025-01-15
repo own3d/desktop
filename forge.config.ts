@@ -59,7 +59,7 @@ const config: ForgeConfig = {
                 },
                 {
                     name: 'fullscreen_window',
-                    config: 'vite.renderer.config.ts',
+                    config: 'vite.fullscreen.config.ts',
                 },
             ],
         }),
