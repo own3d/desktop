@@ -103,7 +103,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         webviewContainer.classList.remove('hidden')
     })
 
-    // @ts-ignore
     window.resetWebview = async () => {
         // @ts-ignore
         const hostname = await window.electron.getHostname()

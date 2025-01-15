@@ -7,6 +7,6 @@
   -webkit-app-region: drag;
 }
 
-button {
+button, a {
   -webkit-app-region: no-drag;
 }

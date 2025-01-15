@@ -4,6 +4,9 @@
       OBS Studio:
       <div v-if="connected" class="bg-green-500 h-2.5 w-2.5 rounded-full" />
       <div v-else class="bg-red-500 h-2.5 w-2.5 rounded-full" />
+      <a href="#" @click.prevent="openSettings" target="_blank" class="text-zinc-300/30 hover:text-zinc-100">
+        <i class="fas fa-gear" />
+      </a>
     </div>
   </div>
 </template>
@@ -19,6 +22,10 @@ const onClosed = async () => {
 
 const onOpened = async () => {
   connected.value = true
+}
+
+const openSettings = () => {
+  window.pushRoute('/dashboard/desktop-settings')
 }
 
 // reconnect handler
