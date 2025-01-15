@@ -4,6 +4,7 @@ import path from 'path'
 import ini from 'ini'
 import node_process from 'node:process'
 import { createMainWindow } from './window/mainWindow'
+import log from 'electron-log/main';
 
 import { OBSWebSocket } from 'obs-websocket-js'
 
@@ -75,7 +76,7 @@ function discoverObsWebsocketCredentialsNew(wellKnownPaths): OBSWebSocketConfigF
     const obsConfigPathNew = wellKnownPaths.find(fs.existsSync)
 
     if (obsConfigPathNew) {
-        console.log(`Found OBS config at ${obsConfigPathNew}`)
+        log.log(`Found OBS config at ${obsConfigPathNew}`)
         const obsConfig = JSON.parse(fs.readFileSync(obsConfigPathNew, 'utf-8'))
 
         return {
@@ -96,11 +97,11 @@ function discoverObsWebsocketCredentialsOld(): OBSWebSocketConfigFile | undefine
     const obsConfigPath = path.join(getAppData(), 'obs-studio', 'global.ini')
 
     if (fs.existsSync(obsConfigPath)) {
-        console.log(`Found OBS config at ${obsConfigPath}`)
+        log.log(`Found OBS config at ${obsConfigPath}`)
         const obsConfig = ini.parse(fs.readFileSync(obsConfigPath, 'utf-8'))
 
         if (!obsConfig['OBSWebSocket']) {
-            console.error('OBSWebSocket section not found in OBS config')
+            log.error('OBSWebSocket section not found in OBS config')
             return
         }
 
@@ -115,7 +116,7 @@ export function setObsWebsocketCredentials(credentials: OBSWebSocketConfigFile) 
     const {file, config} = credentials
     // fist make backup of the file
     fs.copyFileSync(file, `${file}.bak`)
-    console.log(`Backup of OBS config created at ${file}.bak`)
+    log.log(`Backup of OBS config created at ${file}.bak`)
 
     if (file.endsWith('.json')) {
         const obsConfig = JSON.parse(fs.readFileSync(file, 'utf-8'))
@@ -126,14 +127,14 @@ export function setObsWebsocketCredentials(credentials: OBSWebSocketConfigFile) 
         obsConfig['server_password'] = config.ServerPassword
         obsConfig['server_port'] = config.ServerPort
         fs.writeFileSync(file, JSON.stringify(obsConfig, null, 4))
-        console.log(`Updated OBS config at ${file}`)
+        log.log(`Updated OBS config at ${file}`)
     }
 
     if (file.endsWith('.ini')) {
         const obsConfig = ini.parse(fs.readFileSync(file, 'utf-8'))
         obsConfig['OBSWebSocket'] = config
         fs.writeFileSync(file, ini.stringify(obsConfig))
-        console.log(`Updated OBS config at ${file}`)
+        log.log(`Updated OBS config at ${file}`)
     }
 }
 

@@ -3,6 +3,7 @@ import { generateRandomString, getChallengeFromVerifier } from '../helpers'
 import axios from 'axios'
 import { useContainer } from './useContainer'
 import { SettingsRepository } from '../settings'
+import log from 'electron-log/main';
 
 interface AccessTokenResponse {
     access_token: string
@@ -55,7 +56,7 @@ export function useOauth2() {
 
         // wait until the user is redirected back
         return new Promise((resolve, reject) => {
-            console.log('Waiting for response...')
+            log.log('Waiting for response...')
             // wait max 2 minutes
             const interval = setInterval(() => {
                 if (oauth2.response) {
@@ -77,13 +78,13 @@ export function useOauth2() {
     const callback = async ({code, state}) => {
         const {state: originalState} = JSON.parse(atob(state))
         if (originalState !== oauth2.state) {
-            console.error('Invalid state')
+            log.error('Invalid state')
             oauth2.response = {error: 'Invalid state'}
             return
         }
 
         if (!code) {
-            console.error('No code')
+            log.error('No code')
             oauth2.response = {error: 'No code received'}
             return
         }
@@ -104,7 +105,7 @@ export function useOauth2() {
             oauth2.state = null
             oauth2.response = {access_token: data.access_token}
         } catch (e) {
-            console.error(e)
+            log.error(e)
             oauth2.response = {error: 'Token exchange failed'}
         }
     }

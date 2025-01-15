@@ -3,6 +3,7 @@ import { Server } from 'socket.io'
 import { JSONRPCServer } from 'json-rpc-2.0'
 import axios from 'axios'
 import { useOauth2 } from './useOauth2'
+import log from 'electron-log/main';
 
 export async function useRpcServer() {
     const {callback} = useOauth2()
@@ -30,7 +31,7 @@ export async function useRpcServer() {
     })
 
     rpcServer.addMethod('echo', ({text}) => text)
-    rpcServer.addMethod('log', ({message}) => console.log(message))
+    rpcServer.addMethod('log', ({message}) => log.log(message))
 
     rpcServer.addMethod('oauth2@callback', callback)
     rpcServer.addMethod('oauth2_callback', callback)
@@ -39,7 +40,7 @@ export async function useRpcServer() {
     })
 
     httpServer.listen(41466)
-    console.log('RPC server listening on port 41466')
+    log.log('RPC server listening on port 41466')
 
     return {
         rpcServer,

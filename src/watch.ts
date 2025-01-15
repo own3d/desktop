@@ -1,6 +1,7 @@
 // maybe a slick way to auto-start the companion app when any streaming software is started
 import { exec, ExecException } from 'child_process'
 import {Settings} from "./schema"
+import log from 'electron-log/main'
 
 export class AppLaunchWatcher {
     private apps: string[]
@@ -17,7 +18,7 @@ export class AppLaunchWatcher {
         const command = process.platform === 'win32' ? 'tasklist' : 'ps aux'
         exec(command, (err: ExecException | null, stdout: string) => {
             if (err) {
-                console.error(err)
+                log.error(err)
                 return
             }
             // check if one of the apps is running
@@ -36,10 +37,10 @@ export class AppLaunchWatcher {
 
     watch(callback: () => void) {
         if (this.settings.launch_with_obs) {
-            console.log('launch with obs')
+            log.log('launch with obs')
             setInterval(() => this.checkObs(callback), 1000)
         } else {
-            console.log('Not launching with obs')
+            log.log('Not launching with obs')
         }
     }
 }

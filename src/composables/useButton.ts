@@ -2,16 +2,17 @@
 import path from 'path'
 import { shell } from 'electron'
 import { exec } from 'child_process'
+import log from 'electron-log/main';
 
 const base = MAIN_WINDOW_VITE_DEV_SERVER_URL ? ['..', '..'] : ['..', '..', '..']
 const inputBridgePath = path.join(__dirname, ...base, 'bin', 'InputBridge', 'InputBridge.exe')
 
 function execHandler(err: Error | null, stdout: string, _stderr: string) {
     if (err) {
-        console.error(err)
+        log.error(err)
         return
     }
-    console.log(stdout)
+    log.log(stdout)
 }
 
 /**
@@ -63,16 +64,16 @@ export function useButton(button: Button) {
     if (trigger.type === 'open') {
         shell.openExternal(trigger.url, {
             activate: true,
-        }).then(r => console.log(r))
+        }).then(r => log.log(r))
     } else if (trigger.type === 'input') {
         const {key} = trigger
 
         if (inputs.includes(key)) {
             exec(`"${inputBridgePath}" ${key}`, execHandler)
         } else {
-            console.error(`Invalid input key: ${key}`)
+            log.error(`Invalid input key: ${key}`)
         }
     } else {
-        console.error(`Invalid trigger type: ${trigger.type}`)
+        log.error(`Invalid trigger type: ${trigger.type}`)
     }
 }

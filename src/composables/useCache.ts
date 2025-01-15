@@ -2,6 +2,7 @@ import path from 'path'
 import { getAppData } from '../helpers'
 import fs from 'fs'
 import axios from 'axios'
+import log from 'electron-log/main';
 
 export function useCache() {
     const cacheAsset = async (url: string): Promise<{ path: string }> => {
@@ -10,7 +11,7 @@ export function useCache() {
             fs.mkdirSync(assetFolder, {recursive: true})
         }
 
-        console.log('Caching asset:', url)
+        log.log('Caching asset:', url)
 
         const {data, headers} = await axios.get(url, {
             responseType: 'stream',

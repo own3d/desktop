@@ -2,10 +2,19 @@ import { createApp } from 'vue'
 import App from './views/App.vue'
 
 import './index.css'
+import log from 'electron-log/renderer'
 
 createApp(App).mount('#app')
 
-console.log('👋 This message is being logged by "renderer.ts", included via Vite')
+log.log('👋 This message is being logged by "renderer.ts", included via Vite')
+
+declare global {
+    interface Window {
+        resetWebview: () => void
+        pushRoute: (to: string) => void
+        dev: () => void
+    }
+}
 
 document.addEventListener('DOMContentLoaded', async () => {
     // @ts-ignore
@@ -34,7 +43,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         webview.openDevTools()
     }
 
-    //@ts-ignore
     window.dev = () => webview.openDevTools()
 
     const loadstart = () => {
@@ -47,7 +55,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     webview.addEventListener('ipc-message', event => {
         // prints "ping"
-        console.log(event.channel)
+        log.log(event.channel)
     })
 
     webview.addEventListener('did-start-loading', loadstart)
@@ -80,13 +88,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (url.hostname === hostname
             && !url.pathname.startsWith('/dashboard/')) {
             webview.loadURL(`https://${url.hostname}/dashboard/`)
-            console.log('redirecting to dashboard', {
+            log.log('redirecting to dashboard', {
                 url: url,
                 pathname: url.pathname,
                 startsWith: url.pathname.startsWith('/dashboard/'),
             })
         }
-        console.log('will-navigate', {url: url})
+        log.log('will-navigate', {url: url.toString()})
     })
 
     webview.addEventListener('dom-ready', () => {
@@ -95,11 +103,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         webviewContainer.classList.remove('hidden')
     })
 
-    // @ts-ignore
     window.resetWebview = async () => {
         // @ts-ignore
         const hostname = await window.electron.getHostname()
         webview.setAttribute('src', `${hostname}/dashboard/`)
         outsideWarning.classList.add('hidden')
+    }
+
+    window.pushRoute = async (to) => {
+        await webview.executeJavaScript(`window.pushRoute('${to}')`)
     }
 })

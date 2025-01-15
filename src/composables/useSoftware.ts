@@ -1,7 +1,7 @@
 import fs from 'fs'
 import axios, { AxiosResponse } from 'axios'
 import { spawn } from 'child_process'
-import { ipcMain } from 'electron'
+import log from 'electron-log/main';
 
 export type SoftwareName = 'obs-studio' | 'obs-own3d-desktop-connector';
 
@@ -110,7 +110,7 @@ export function useSoftware() {
             }[]
         }[]>
 
-        console.log(data)
+        log.log(data)
         const software = data.find((software) => software.name === name)
         const platform = 'windows'
 

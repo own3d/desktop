@@ -6,6 +6,7 @@ import { useContainer } from '../composables/useContainer'
 import fs from 'fs'
 import { useCache } from '../composables/useCache'
 import path from 'path'
+import log from 'electron-log/main'
 
 export function registerObsWebSocketHandlers() {
     const {get} = useContainer()
@@ -42,7 +43,7 @@ export function registerObsWebSocketHandlers() {
     })
 
     const handleOwn3dVendorRequest = async (requestType: string, requestData: unknown) => {
-        console.log('Own3d vendor request:', requestType, requestData)
+        log.log('Own3d vendor request:', requestType, requestData)
 
         switch (requestType) {
             case 'CreateSceneTransition':
