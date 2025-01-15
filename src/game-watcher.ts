@@ -19,23 +19,24 @@ export class GameWatcher {
 
         response.data.data.push({
             id: 100,
+            name: 'Notepad',
+            publisher: 'Microsoft',
+            notes: null,
+            supported: true,
+            requires_optimization: false,
+            executables: ['Notepad.exe'],
+            image_url: 'https://assets.cdn.own3d.tv/production/pro/verified-games/unknown.png',
+        })
+
+        response.data.data.push({
+            id: 100,
             name: 'Lethal Company',
             publisher: 'Zeekerss',
             notes: null,
             supported: true,
             requires_optimization: false,
             executables: ['Lethal Company.exe'],
-            image_url: 'https://assets.cdn.own3d.tv/production/pro/verified-games/co5ive.png'
-        })
-        response.data.data.push({
-            id: 101,
-            name: 'PhpStorm',
-            publisher: 'JetBrains',
-            notes: null,
-            supported: true,
-            requires_optimization: false,
-            executables: ['phpstorm64.exe'],
-            image_url: 'https://assets.cdn.own3d.tv/production/pro/verified-games/jetbrains.png'
+            image_url: 'https://assets.cdn.own3d.tv/production/pro/verified-games/co5ive.png',
         })
 
         clearInterval(this.interval)

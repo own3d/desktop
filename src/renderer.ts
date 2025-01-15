@@ -6,8 +6,15 @@ import log from 'electron-log/renderer'
 
 createApp(App).mount('#app')
 
-console.log('👋 This message is being logged by "renderer.ts", included via Vite')
 log.log('👋 This message is being logged by "renderer.ts", included via Vite')
+
+declare global {
+    interface Window {
+        resetWebview: () => void
+        pushRoute: (to: string) => void
+        dev: () => void
+    }
+}
 
 document.addEventListener('DOMContentLoaded', async () => {
     // @ts-ignore
@@ -102,5 +109,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         const hostname = await window.electron.getHostname()
         webview.setAttribute('src', `${hostname}/dashboard/`)
         outsideWarning.classList.add('hidden')
+    }
+
+    window.pushRoute = async (to) => {
+        await webview.executeJavaScript(`window.pushRoute('${to}')`)
     }
 })
