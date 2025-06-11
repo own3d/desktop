@@ -43,6 +43,8 @@ contextBridge.exposeInMainWorld('electron', {
             ipcRenderer.invoke('magic-login'),
         logout: () =>
             ipcRenderer.send('logout'),
+        openFileDialog: (options: Electron.OpenDialogOptions = undefined) =>
+            ipcRenderer.invoke('open-file-dialog', options),
     },
 
     // deprecated
