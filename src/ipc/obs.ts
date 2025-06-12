@@ -131,6 +131,27 @@ export function registerObsWebSocketHandlers() {
         })
     }
 
+    ipcMain.handle('obs:fetch-and-store-credentials', async (_event, pathToBinary: string = undefined): Promise<boolean> => {
+        let pathToConfig = undefined
+        if (pathToBinary) {
+            pathToConfig = path.normalize(path.join(path.dirname(pathToBinary), '..', '..', 'config', 'obs-studio', 'plugin_config', 'obs-websocket', 'config.json'))
+            log.log(`Looking for credentials at ${pathToConfig}`)
+        }
+
+        const credentials = discoverObsWebsocketCredentials(pathToConfig)
+
+        if (credentials) {
+            settingsRepository.commitSettings({
+                obs: {
+                    url: `ws://localhost:${credentials.config.ServerPort}`,
+                    password: credentials.config.ServerPassword
+                }
+            })
+        }
+
+        return credentials !== undefined
+    })
+
     ipcMain.handle('obs:credentials', async (_event, ...args): Promise<void> => {
         return settingsRepository.commitSettings({
             obs: {

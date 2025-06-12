@@ -83,6 +83,8 @@ contextBridge.exposeInMainWorld('electron', {
     obs: {
         connected: (): Promise<boolean> =>
             ipcRenderer.invoke('obs:connected'),
+        fetchAndStoreCredentials: (pathToBinary?: string): Promise<boolean> => 
+            ipcRenderer.invoke('obs:fetch-and-store-credentials', pathToBinary),
         credentials: (url?: string, password?: string): Promise<any> =>
             ipcRenderer.invoke('obs:credentials', url, password),
         connect: (url?: string, password?: string, identificationParams?: {}): Promise<any> =>
