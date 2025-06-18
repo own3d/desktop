@@ -37,7 +37,7 @@ export function registerDesktopHandlers() {
         return await getDeviceId()
     })
 
-    ipcMain.handle('open-file-dialog', async (_event, options: Electron.OpenDialogOptions = undefined) => {
+    ipcMain.handle('open-file-dialog', async (_event, options: Electron.OpenDialogOptions = undefined): Promise<Electron.OpenDialogReturnValue> => {
         return await dialog.showOpenDialog(windows.mainWindow, options)
     })
 }
