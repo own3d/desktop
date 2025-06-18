@@ -1,5 +1,5 @@
 import { ipcMain, Notification } from 'electron'
-import { discoverObsWebsocketCredentials, getAppData, setObsWebsocketCredentials } from '../helpers'
+import { discoverObsWebsocketCredentials, getAppData, getINIPathFromPortableBinary, getJSONPathFromPortableBinary, setObsWebsocketCredentials } from '../helpers'
 import OBSWebSocket, { EventSubscription } from 'obs-websocket-js'
 import { SettingsRepository } from '../settings'
 import { useContainer } from '../composables/useContainer'
@@ -131,14 +131,16 @@ export function registerObsWebSocketHandlers() {
         })
     }
 
-    ipcMain.handle('obs:fetch-and-store-credentials', async (_event, pathToBinary: string = undefined): Promise<boolean> => {
-        let pathToConfig = undefined
+    ipcMain.handle('obs:find-and-store-credentials', async (_event, pathToBinary: string = undefined): Promise<boolean> => {
+        let pathToJSON = undefined
+        let pathToINI = undefined
         if (pathToBinary) {
-            pathToConfig = path.normalize(path.join(path.dirname(pathToBinary), '..', '..', 'config', 'obs-studio', 'plugin_config', 'obs-websocket', 'config.json'))
-            log.log(`Looking for credentials at ${pathToConfig}`)
+            pathToJSON = getJSONPathFromPortableBinary(pathToBinary)
+            pathToINI = getINIPathFromPortableBinary(pathToBinary)
+            log.log(`Looking for credentials at ${pathToJSON} and ${pathToINI}`)
         }
 
-        const credentials = discoverObsWebsocketCredentials(pathToConfig)
+        const credentials = discoverObsWebsocketCredentials(pathToJSON, pathToINI)
 
         if (credentials) {
             settingsRepository.commitSettings({

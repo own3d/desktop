@@ -63,6 +63,18 @@ export function getHome(): string {
     return process.env.HOMEPATH
 }
 
+function getConfigPathFromPortableBinary(pathToBinary: string, ...segments: string[]): string {
+    return path.normalize(path.join(path.dirname(pathToBinary), '..', '..', 'config', 'obs-studio', ...segments))
+}
+
+export function getINIPathFromPortableBinary(pathToBinary: string): string {
+    return getConfigPathFromPortableBinary(pathToBinary, 'global.ini')
+}
+
+export function getJSONPathFromPortableBinary(pathToBinary: string): string {
+    return getConfigPathFromPortableBinary(pathToBinary, 'plugin_config', 'obs-websocket', 'config.json')
+}
+
 function parseOBSConfig(path: string): OBSWebSocketConfigFile | undefined {
     let parsedConfig = path.endsWith('.ini') ? parseOBSConfigINI(path) : parseOBSConfigJSON(path)
 
