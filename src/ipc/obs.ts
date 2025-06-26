@@ -1,5 +1,5 @@
 import { ipcMain, Notification } from 'electron'
-import { discoverObsWebsocketCredentials, getAppData, getINIPathFromPortableBinary, getJSONPathFromPortableBinary, setObsWebsocketCredentials } from '../helpers'
+import { discoverObsWebsocketCredentials, getAppData, setObsWebsocketCredentials } from '../helpers'
 import OBSWebSocket, { EventSubscription } from 'obs-websocket-js'
 import { SettingsRepository } from '../settings'
 import { useContainer } from '../composables/useContainer'
@@ -7,9 +7,12 @@ import fs from 'fs'
 import { useCache } from '../composables/useCache'
 import path from 'path'
 import log from 'electron-log/main'
+import {useSoftware} from "../composables/useSoftware";
 
 export function registerObsWebSocketHandlers() {
     const {get} = useContainer()
+    const {get : getSoftware} = useSoftware()
+
     const settingsRepository = get(SettingsRepository)
     const obs = get(OBSWebSocket)
 
@@ -234,5 +237,18 @@ export function registerObsWebSocketHandlers() {
             return Promise.reject('Could not discover OBS WebSocket credentials')
         }
         return !!credentials.config.ServerEnabled
+    })
+    
+    ipcMain.handle('obs:is-installed', async (): Promise<boolean> => {
+        const obsInstalled = await getSoftware('obs-studio')
+        if (obsInstalled.installed) {
+            return true
+        }
+        // check for obsWebsocket credentials
+        const credentials = discoverObsWebsocketCredentials()
+        if (credentials){
+            return true
+        }
+        return false
     })
 }

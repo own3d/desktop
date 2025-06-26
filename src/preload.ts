@@ -109,5 +109,8 @@ contextBridge.exposeInMainWorld('electron', {
             ipcRenderer.addListener(`obs:${event}`, listener),
         removeListener: (event: string, listener: (event: IpcRendererEvent, ...args: any[]) => void) =>
             ipcRenderer.removeListener(`obs:${event}`, listener),
+        isObsInstalled: (): Promise<boolean> =>{
+            return ipcRenderer.invoke('obs:is-installed');
+        }
     },
 })
