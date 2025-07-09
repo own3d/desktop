@@ -1,4 +1,4 @@
-import { app, ipcMain } from 'electron'
+import { app, dialog, ipcMain } from 'electron'
 import { useDevice } from '../composables/useDevice'
 import { Argv, Windows } from '../main'
 import { useContainer } from '../composables/useContainer'
@@ -35,5 +35,9 @@ export function registerDesktopHandlers() {
 
     ipcMain.handle('get-device-id', async (): Promise<string> => {
         return await getDeviceId()
+    })
+
+    ipcMain.handle('open-file-dialog', async (_event, options: Electron.OpenDialogOptions = undefined): Promise<Electron.OpenDialogReturnValue> => {
+        return await dialog.showOpenDialog(windows.mainWindow, options)
     })
 }

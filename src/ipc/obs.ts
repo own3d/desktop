@@ -7,9 +7,12 @@ import fs from 'fs'
 import { useCache } from '../composables/useCache'
 import path from 'path'
 import log from 'electron-log/main'
+import {useSoftware} from "../composables/useSoftware";
 
 export function registerObsWebSocketHandlers() {
     const {get} = useContainer()
+    const {get : getSoftware} = useSoftware()
+
     const settingsRepository = get(SettingsRepository)
     const obs = get(OBSWebSocket)
 
@@ -131,6 +134,29 @@ export function registerObsWebSocketHandlers() {
         })
     }
 
+    ipcMain.handle('obs:find-and-store-credentials', async (_event, pathToBinary: string = undefined): Promise<boolean> => {
+        let pathToJSON = undefined
+        let pathToINI = undefined
+        if (pathToBinary) {
+            pathToJSON = getJSONPathFromPortableBinary(pathToBinary)
+            pathToINI = getINIPathFromPortableBinary(pathToBinary)
+            log.log(`Looking for credentials at ${pathToJSON} and ${pathToINI}`)
+        }
+
+        const credentials = discoverObsWebsocketCredentials(pathToJSON, pathToINI)
+
+        if (credentials) {
+            settingsRepository.commitSettings({
+                obs: {
+                    url: `ws://localhost:${credentials.config.ServerPort}`,
+                    password: credentials.config.ServerPassword
+                }
+            })
+        }
+
+        return credentials !== undefined
+    })
+
     ipcMain.handle('obs:credentials', async (_event, ...args): Promise<void> => {
         return settingsRepository.commitSettings({
             obs: {
@@ -211,5 +237,18 @@ export function registerObsWebSocketHandlers() {
             return Promise.reject('Could not discover OBS WebSocket credentials')
         }
         return !!credentials.config.ServerEnabled
+    })
+    
+    ipcMain.handle('obs:is-installed', async (): Promise<boolean> => {
+        const obsInstalled = await getSoftware('obs-studio')
+        if (obsInstalled.installed) {
+            return true
+        }
+        // check for obsWebsocket credentials
+        const credentials = discoverObsWebsocketCredentials()
+        if (credentials){
+            return true
+        }
+        return false
     })
 }

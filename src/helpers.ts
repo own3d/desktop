@@ -9,9 +9,10 @@ import log from 'electron-log/main';
 import { OBSWebSocket } from 'obs-websocket-js'
 
 const jsonPath = path.join('obs-studio', 'plugin_config', 'obs-websocket', 'config.json')
-const wellKnownJsonPaths = [
+const wellKnownConfigPaths = [
     path.join(getAppData(), jsonPath),
     path.join(getHome(), '.var', 'app', 'com.obsproject.Studio', 'config', jsonPath),
+    path.join(getAppData(), 'obs-studio', 'global.ini'),
 ]
 
 export interface OBSWebSocketConfigFile {
@@ -62,54 +63,74 @@ export function getHome(): string {
     return process.env.HOMEPATH
 }
 
+function getConfigPathFromPortableBinary(pathToBinary: string, ...segments: string[]): string {
+    return path.normalize(path.join(path.dirname(pathToBinary), '..', '..', 'config', 'obs-studio', ...segments))
+}
+
+export function getINIPathFromPortableBinary(pathToBinary: string): string {
+    return getConfigPathFromPortableBinary(pathToBinary, 'global.ini')
+}
+
+export function getJSONPathFromPortableBinary(pathToBinary: string): string {
+    return getConfigPathFromPortableBinary(pathToBinary, 'plugin_config', 'obs-websocket', 'config.json')
+}
+
+function parseOBSConfig(path: string): OBSWebSocketConfigFile | undefined {
+    let parsedConfig = path.endsWith('.ini') ? parseOBSConfigINI(path) : parseOBSConfigJSON(path)
+
+    if (parsedConfig) {
+        return {
+            file: path,
+            config: parsedConfig,
+        } as OBSWebSocketConfigFile
+    }
+
+    return undefined
+}
+
+function parseOBSConfigINI(path: string): OBSWebSocketConfig | undefined {
+    const obsConfig = ini.parse(fs.readFileSync(path, 'utf-8'))
+
+    if (!obsConfig['OBSWebSocket']) {
+        log.error('OBSWebSocket section not found in OBS config')
+        return
+    }
+
+    return obsConfig['OBSWebSocket'] as OBSWebSocketConfig
+}
+
+function parseOBSConfigJSON(path: string): OBSWebSocketConfig | undefined {
+    const obsConfig = JSON.parse(fs.readFileSync(path, 'utf-8'))
+
+    return {
+        AlertsEnabled: obsConfig['alerts_enabled'],
+        AuthRequired: obsConfig['auth_required'],
+        FirstLoad: obsConfig['first_load'],
+        ServerEnabled: obsConfig['server_enabled'],
+        ServerPassword: obsConfig['server_password'],
+        ServerPort: obsConfig['server_port'],
+    } as OBSWebSocketConfig
+}
+
 /**
  * Settings stored in global.ini will now be in plugin_config/obs-websocket/config.json
  * Persistent data stored in obsWebSocketPersistentData.json is now
  * located in plugin_config/obs-websocket/persistent_data.json
  */
-export function discoverObsWebsocketCredentials(): OBSWebSocketConfigFile | undefined {
-    return discoverObsWebsocketCredentialsNew(wellKnownJsonPaths)
-        || discoverObsWebsocketCredentialsOld()
-}
+export function discoverObsWebsocketCredentials(...additionalPaths: string[]): OBSWebSocketConfigFile | undefined {
+    const pathsToSearch = [...additionalPaths.filter((p) => !!p), ...wellKnownConfigPaths]
+    for (const configPath of pathsToSearch) {
+        if (fs.existsSync(configPath)) {
+            log.log(`Found OBS config at ${configPath}`)
+            let credentials = parseOBSConfig(configPath)
 
-function discoverObsWebsocketCredentialsNew(wellKnownPaths): OBSWebSocketConfigFile | undefined {
-    const obsConfigPathNew = wellKnownPaths.find(fs.existsSync)
-
-    if (obsConfigPathNew) {
-        log.log(`Found OBS config at ${obsConfigPathNew}`)
-        const obsConfig = JSON.parse(fs.readFileSync(obsConfigPathNew, 'utf-8'))
-
-        return {
-            file: obsConfigPathNew,
-            config: {
-                AlertsEnabled: obsConfig['alerts_enabled'],
-                AuthRequired: obsConfig['auth_required'],
-                FirstLoad: obsConfig['first_load'],
-                ServerEnabled: obsConfig['server_enabled'],
-                ServerPassword: obsConfig['server_password'],
-                ServerPort: obsConfig['server_port'],
-            } as OBSWebSocketConfig,
-        } as OBSWebSocketConfigFile
-    }
-}
-
-function discoverObsWebsocketCredentialsOld(): OBSWebSocketConfigFile | undefined {
-    const obsConfigPath = path.join(getAppData(), 'obs-studio', 'global.ini')
-
-    if (fs.existsSync(obsConfigPath)) {
-        log.log(`Found OBS config at ${obsConfigPath}`)
-        const obsConfig = ini.parse(fs.readFileSync(obsConfigPath, 'utf-8'))
-
-        if (!obsConfig['OBSWebSocket']) {
-            log.error('OBSWebSocket section not found in OBS config')
-            return
+            if (credentials) {
+                return credentials
+            }
         }
-
-        return {
-            file: obsConfigPath,
-            config: obsConfig['OBSWebSocket'] as OBSWebSocketConfig,
-        } as OBSWebSocketConfigFile
     }
+
+    return undefined
 }
 
 export function setObsWebsocketCredentials(credentials: OBSWebSocketConfigFile) {

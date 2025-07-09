@@ -43,6 +43,8 @@ contextBridge.exposeInMainWorld('electron', {
             ipcRenderer.invoke('magic-login'),
         logout: () =>
             ipcRenderer.send('logout'),
+        openFileDialog: (options: any = undefined) =>
+            ipcRenderer.invoke('open-file-dialog', options),
     },
 
     // deprecated
@@ -81,6 +83,8 @@ contextBridge.exposeInMainWorld('electron', {
     obs: {
         connected: (): Promise<boolean> =>
             ipcRenderer.invoke('obs:connected'),
+        findAndStoreCredentials: (pathToBinary?: string): Promise<boolean> => 
+            ipcRenderer.invoke('obs:find-and-store-credentials', pathToBinary),
         credentials: (url?: string, password?: string): Promise<any> =>
             ipcRenderer.invoke('obs:credentials', url, password),
         connect: (url?: string, password?: string, identificationParams?: {}): Promise<any> =>
@@ -105,5 +109,8 @@ contextBridge.exposeInMainWorld('electron', {
             ipcRenderer.addListener(`obs:${event}`, listener),
         removeListener: (event: string, listener: (event: IpcRendererEvent, ...args: any[]) => void) =>
             ipcRenderer.removeListener(`obs:${event}`, listener),
+        isObsInstalled: (): Promise<boolean> =>{
+            return ipcRenderer.invoke('obs:is-installed');
+        }
     },
 })
